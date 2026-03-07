@@ -1,0 +1,11 @@
+# Ignore everything in the current directory
+/*
+
+# But do NOT ignore the .gitignore file itself (optional but recommended)
+!.gitignore
+
+# Allow the following directories
+!bspwm/
+!sxhkd
+
+bspwm/.bspwmrc.swp
