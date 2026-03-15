@@ -20,4 +20,5 @@ bspc rule -a Screenkey manage=off
 feh --bg-fill /home/zaky/Pictures/motorcycle_restaurant.jpg
 # The following line is needed so hat bespwmrc calls the launch.sh so that
 # a polybar gets loaded on a screen
-$HOME/.config/polybar/launch.sh &
+# $HOME/.config/polybar/launch.sh &
+$HOME/.config/polybar/launch.sh

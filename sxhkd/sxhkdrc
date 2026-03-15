@@ -130,3 +130,30 @@ super + alt + v
     #bash -c "/usr/bin/flatpak run org.kde.kdenlive"
     #touch ~/sxhkd_test_works
     #/usr/bin/flatpak run org.kde.kdenlive
+
+# Brightness Up (increases by 5%)
+#XF86MonBrightnessUp
+#    brightnessctl set +5%
+
+# Brightness Down (decreases by 5%, but won't go below 1%)
+#XF86MonBrightnessDown
+#    brightnessctl set 5%- -n 1
+
+# Brightness Up (using raw keycode)
+# This is usually the larger sun button
+#keycode 233
+#    brightnessctl set +5%
+
+# Brightness Down (using raw keycode)
+# This is usually the smaller sun button
+#keycode 232
+#    brightnessctl set 5%- -n 1
+
+super + F11
+    brightnessctl set 5%- -n 1
+
+super + F12
+    brightnessctl set +5%
+
+#momenteel werkt alleen dit: 
+# [zaky@void-live ~]$ brightnessctl set 50%
