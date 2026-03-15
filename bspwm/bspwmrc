@@ -1,21 +1,26 @@
 #! /bin/sh
+# 1. Arrange Screens
+# xrandr --output eDP-1 --auto --primary --output HDMI-1 --auto --right-of eDP-1
 
-pgrep -x sxhkd > /dev/null || sxhkd &
+# 2. Assign Desktops
+bspc monitor eDP-1 -d 1 2 3 4 5
+bspc monitor HDMI-1 -d 6 7 8 9 10
 
-bspc monitor -d I II III IV V VI VII VIII IX X
-
+# 3. Global Config
 bspc config border_width         2
 bspc config window_gap          12
-
 bspc config split_ratio          0.52
 bspc config borderless_monocle   true
 bspc config gapless_monocle      true
 
+# 4. Rules
 bspc rule -a Gimp desktop='^8' state=floating follow=on
 bspc rule -a Chromium desktop='^2'
 bspc rule -a mplayer2 state=floating
 bspc rule -a Kupfer.py focus=on
 bspc rule -a Screenkey manage=off
+
+# 5. Launch Polybar & Wallpaper 
 
 feh --bg-fill /home/zaky/Pictures/motorcycle_restaurant.jpg
 # The following line is needed so hat bespwmrc calls the launch.sh so that
