@@ -7,11 +7,11 @@ bspc monitor HDMI-1 -d 1 2 3 4 5
 bspc monitor eDP-1 -d 6 7 8 9 10
 
 # 3. Global Config
-bspc config border_width         2
-bspc config window_gap          12
-bspc config split_ratio          0.52
-bspc config borderless_monocle   true
-bspc config gapless_monocle      true
+bspc config border_width          2
+bspc config window_gap           12
+bspc config split_ratio           0.52
+bspc config borderless_monocle    true
+bspc config gapless_monocle       true
 
 # 4. Rules
 bspc rule -a Gimp desktop='^8' state=floating follow=on
@@ -20,10 +20,24 @@ bspc rule -a mplayer2 state=floating
 bspc rule -a Kupfer.py focus=on
 bspc rule -a Screenkey manage=off
 
-# 5. Launch Polybar & Wallpaper 
+# 5. Background Services
+# Start PulseAudio for sound
+# pulseaudio --start &
 
-feh --bg-fill /home/zaky/Pictures/motorcycle_restaurant.jpg
-# The following line is needed so hat bespwmrc calls the launch.sh so that
-# a polybar gets loaded on a screen
-# $HOME/.config/polybar/launch.sh &
-$HOME/.config/polybar/launch.sh
+# Kill any failed attempts first
+pkill -9 pulseaudio || true
+
+# Start the PipeWire stack
+pipewire &
+sleep 1
+pipewire-pulse &
+sleep 1
+wireplumber &
+# Set Wallpaper (added & so it doesn't block)
+feh --bg-fill /home/zaky/Pictures/motorcycle_restaurant.jpg &
+
+# Start Hotkey Daemon
+pgrep -x sxhkd > /dev/null || sxhkd &
+
+# Launch Polybar (added & so it doesn't block)
+$HOME/.config/polybar/launch.sh &
