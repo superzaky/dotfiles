@@ -4,7 +4,8 @@
 
 # terminal emulator
 super + Return
-        qterminal
+        alacritty
+        #qterminal
 	#urxvt 
 
 # program launcher

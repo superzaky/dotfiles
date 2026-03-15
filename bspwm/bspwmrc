@@ -20,6 +20,10 @@ bspc rule -a mplayer2 state=floating
 bspc rule -a Kupfer.py focus=on
 bspc rule -a Screenkey manage=off
 
+# this is needed PCManFM so that it can see mounted devices
+/usr/libexec/gvfsd &
+/usr/libexec/polkit-gnome-authentication-agent-1 &
+
 # 5. Background Services
 # Start PulseAudio for sound
 # pulseaudio --start &
