@@ -1,10 +1,10 @@
 #! /bin/sh
 # 1. Arrange Screens
-# xrandr --output eDP-1 --auto --primary --output HDMI-1 --auto --right-of eDP-1
+xrandr --output eDP-1 --auto --primary --output HDMI-1 --auto --above eDP-1
 
 # 2. Assign Desktops
-bspc monitor eDP-1 -d 1 2 3 4 5
-bspc monitor HDMI-1 -d 6 7 8 9 10
+bspc monitor HDMI-1 -d 1 2 3 4 5
+bspc monitor eDP-1 -d 6 7 8 9 10
 
 # 3. Global Config
 bspc config border_width         2

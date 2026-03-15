@@ -1,0 +1,9 @@
+[opener]
+feh = [
+	{ run = 'feh --start-at "$1"', desc = "Open with feh", block = false }
+]
+
+[open]
+rules = [
+	{ mime = "image/*", use = "feh" }
+]
