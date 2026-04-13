@@ -13,3 +13,10 @@ bspwm/.bspwmrc.swp
 !polybar
 !yazi/
 !feh/
+
+
+!README.md
+!.xinitrc
+!.fehbg
+!.bashrc
+!.bash_profile
