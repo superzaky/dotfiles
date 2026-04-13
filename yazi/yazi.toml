@@ -1,9 +1,18 @@
 [opener]
 feh = [
-	{ run = 'feh --start-at "$1"', desc = "Open with feh", block = false }
+    { run = 'feh --start-at "$1"', desc = "Open with feh", block = false }
+]
+pdf = [
+    { run = 'zathura "$@"', desc = "Open PDF", block = true }
+]
+video = [
+    { run = 'vlc"$@"', desc = "Play Video", orphan = true }
 ]
 
 [open]
 rules = [
-	{ mime = "image/*", use = "feh" }
+    { name = "*.pdf", use = "pdf" },
+    { name = "*.mkv", use = "video" },
+    { name = "*.mp4", use = "video" },
+    { mime = "image/*", use = "feh" }
 ]
