@@ -17,7 +17,7 @@ main = do
         , layoutHook         = avoidStruts $ layoutHook def -- This stops windows from covering the bar
         , logHook = dynamicLogWithPP xmobarPP
             { ppOutput = hPutStrLn xmproc
-            , ppTitle  = xmobarColor "#2ecc71" "" . shorten 50
+            , ppTitle = xmobarColor "#2ecc71" "" . xmobarRaw . shorten 50
             }
         } `additionalKeysP`
         [ ("M-S-w",      kill)
