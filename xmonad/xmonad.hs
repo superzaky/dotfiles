@@ -20,8 +20,7 @@ main = do
             , ppTitle = xmobarColor "#2ecc71" "" . xmobarRaw . shorten 50
             }
         } `additionalKeysP`
-        [ ("M-S-w",      kill)
-        , ("M-p",        spawn "dmenu_run")
+        [ ("M-p",        spawn "dmenu_run")
         , ("M-<Return>", spawn "alacritty")
         , ("<XF86AudioRaiseVolume>", spawn "amixer set Master 5%+")
         , ("<XF86AudioLowerVolume>", spawn "amixer set Master 5%-")
