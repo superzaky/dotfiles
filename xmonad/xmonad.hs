@@ -22,6 +22,7 @@ main = do
         } `additionalKeysP`
         [ ("M-p",        spawn "dmenu_run")
         , ("M-<Return>", spawn "alacritty")
+        , ("M-i", spawn "emacs")
         , ("<XF86AudioRaiseVolume>", spawn "amixer set Master 5%+")
         , ("<XF86AudioLowerVolume>", spawn "amixer set Master 5%-")
         , ("<XF86AudioMute>",        spawn "amixer set Master toggle")
