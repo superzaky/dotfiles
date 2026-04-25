@@ -7,6 +7,10 @@ import XMonad.Util.Run (spawnPipe)
 import System.IO (hPutStrLn)
 import XMonad.Util.SpawnOnce (spawnOnce)
 
+-- Helper function to make workspaces clickable
+clickable :: String -> String
+clickable ws = "<action=`xdotool key super+" ++ ws ++ "`>" ++ ws ++ "</action>"
+
 main :: IO ()
 main = do
     -- This launches xmobar using the system path
@@ -20,6 +24,9 @@ main = do
         , logHook = dynamicLogWithPP xmobarPP
             { ppOutput = hPutStrLn xmproc
             , ppTitle = xmobarColor "#2ecc71" "" . xmobarRaw . shorten 50
+            , ppCurrent = xmobarColor "#f1c40f" "" . wrap "[" "]" . clickable
+            , ppVisible = wrap "(" ")" . clickable
+            , ppHidden  = clickable
             }
         } `additionalKeysP`
         [ ("M-p",        spawn "dmenu_run")
