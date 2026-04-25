@@ -5,6 +5,7 @@ import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks (docks, avoidStruts)
 import XMonad.Util.Run (spawnPipe)
 import System.IO (hPutStrLn)
+import XMonad.Util.SpawnOnce (spawnOnce)
 
 main :: IO ()
 main = do
@@ -14,6 +15,7 @@ main = do
         { terminal           = "alacritty"
         , modMask            = mod4Mask -- rebind mod to super key
         , borderWidth        = 2
+        , startupHook        = spawnOnce "feh --bg-fill /home/zaky/Pictures/motorcycle_restaurant.jpg"
         , layoutHook         = avoidStruts $ layoutHook def -- This stops windows from covering the bar
         , logHook = dynamicLogWithPP xmobarPP
             { ppOutput = hPutStrLn xmproc
