@@ -19,6 +19,8 @@ main = do
         { terminal           = "alacritty"
         , modMask            = mod4Mask -- rebind mod to super key
         , borderWidth        = 2
+        , normalBorderColor = "#444b6a"
+        , focusedBorderColor = "#ad8ee6"
         , startupHook        = spawnOnce "feh --bg-fill /home/zaky/Pictures/motorcycle_restaurant.jpg"
         , layoutHook         = avoidStruts $ layoutHook def -- This stops windows from covering the bar
         , logHook = dynamicLogWithPP xmobarPP
@@ -31,6 +33,7 @@ main = do
         } `additionalKeysP`
         [ ("M-p",        spawn "dmenu_run")
         , ("M-<Return>", spawn "alacritty")
+        -- , ("M-i", spawn "emacs ~/leerplek/angular/hello-world/")
         , ("M-i", spawn "emacs")
         , ("<XF86AudioRaiseVolume>", spawn "amixer set Master 5%+")
         , ("<XF86AudioLowerVolume>", spawn "amixer set Master 5%-")
