@@ -18,17 +18,22 @@ main = do
     xmonad $ docks $ ewmh def
         { terminal           = "alacritty"
         , modMask            = mod4Mask -- rebind mod to super key
+        , workspaces         = ["1","2","3","4","5","6","7","8","9"]
         , borderWidth        = 2
         , normalBorderColor = "#444b6a"
         , focusedBorderColor = "#ad8ee6"
         , startupHook        = spawnOnce "feh --bg-fill /home/zaky/Pictures/motorcycle_restaurant.jpg"
         , layoutHook         = avoidStruts $ layoutHook def -- This stops windows from covering the bar
         , logHook = dynamicLogWithPP xmobarPP
-            { ppOutput = hPutStrLn xmproc
-            , ppTitle = xmobarColor "#2ecc71" "" . xmobarRaw . shorten 50
-            , ppCurrent = xmobarColor "#f1c40f" "" . wrap "[" "]" . clickable
-            , ppVisible = wrap "(" ")" . clickable
-            , ppHidden  = clickable
+            { ppOutput          = hPutStrLn xmproc
+            , ppCurrent         = xmobarColor "#f1c40f" "" . wrap "[" "]" . clickable
+            , ppVisible         = xmobarColor "#ecf0f1" "" . wrap "(" ")" . clickable
+            , ppHidden          = xmobarColor "#95a5a6" "" . clickable        -- Workspaces with windows
+            , ppHiddenNoWindows = xmobarColor "#444b6a" "" . clickable        -- Empty workspaces (dimmer color)
+            , ppUrgent          = xmobarColor "#e74c3c" "" . clickable
+            , ppTitle           = xmobarColor "#2ecc71" "" . shorten 50
+            , ppSep             = "   " 
+            , ppOrder           = \(ws:l:t:ex) -> [ws,t]
             }
         } `additionalKeysP`
         [ ("M-p",        spawn "dmenu_run")
