@@ -15,3 +15,5 @@ export NVM_DIR="$HOME/.nvm"
 # Load Angular CLI autocompletion.
 source <(ng completion script)
 export PATH="$HOME/.local/bin:$PATH"
+
+[ -f "/home/zaky/.ghcup/env" ] && . "/home/zaky/.ghcup/env" # ghcup-env
