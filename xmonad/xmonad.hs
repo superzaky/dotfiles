@@ -44,5 +44,6 @@ main = do
         , ("<XF86AudioLowerVolume>", spawn "amixer set Master 5%-")
         , ("<XF86AudioMute>",        spawn "amixer set Master toggle")
         , ("M-S-r", spawn "xmonad --recompile && xmonad --restart")
+        , ("M-S-k", spawn "sh ~/.config/xmonad/scripts/keys.sh")
         , ("M-<Backspace>", kill)
         ]
