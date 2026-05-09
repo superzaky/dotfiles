@@ -17,3 +17,7 @@ source <(ng completion script)
 export PATH="$HOME/.local/bin:$PATH"
 
 [ -f "/home/zaky/.ghcup/env" ] && . "/home/zaky/.ghcup/env" # ghcup-env
+
+# Haskell Cabal binaries
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/state/cabal/bin:$PATH"
