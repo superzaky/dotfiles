@@ -46,6 +46,8 @@ main = do
         , ("<XF86MonBrightnessUp>",   spawn "brightnessctl set +5%")
         , ("<XF86MonBrightnessDown>", spawn "brightnessctl set 5%-")
         , ("M-S-r", spawn "xmonad --recompile && xmonad --restart")
+        , ("M-<F7>", spawn "sh ~/.config/xmonad/scripts/dual_screen.sh")
+        , ("M-<F8>", spawn "sh ~/.config/xmonad/scripts/monitor_only.sh")
         , ("M-S-k", spawn "sh ~/.config/xmonad/scripts/keys.sh")
         , ("M-<Backspace>", kill)
         ]
