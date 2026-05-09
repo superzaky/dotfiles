@@ -19,3 +19,6 @@ xmodmap -e "add mod4 = Super_R"
 # 4. Tell xcape to use those "spare" keys when you tap
 # We use the keysym names here
 xcape -t 200 -e "Super_L=Tab;Super_R=backslash"
+
+# Set brightness to 5% on startup
+brightnessctl set 5%
