@@ -35,3 +35,7 @@ Regarding extra keybinds that are added as a modifier, xmodmap (version 1.0.11_1
 
 After downloading all the the required packages, run the following command to compile xmonad that you can use it:
 xmonad --recompile
+
+### Emacs
+I downloaded this python debugger in Debian via the following command:
+sudo apt install python3-debugpy
