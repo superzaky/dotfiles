@@ -6,6 +6,7 @@ import XMonad.Hooks.ManageDocks (docks, avoidStruts)
 import XMonad.Util.Run (spawnPipe)
 import System.IO (hPutStrLn)
 import XMonad.Util.SpawnOnce (spawnOnce)
+import XMonad.Actions.CopyWindow (copyToAll, killAllOtherCopies)
 
 -- Helper function to make workspaces clickable
 clickable :: String -> String
@@ -50,4 +51,7 @@ main = do
         , ("M-<F8>", spawn "sh ~/.config/xmonad/scripts/monitor_only.sh")
         , ("M-S-k", spawn "sh ~/.config/xmonad/scripts/keys.sh")
         , ("M-<Backspace>", kill)
+        -- Video Pinning Bindings
+        , ("M-v", windows copyToAll)              -- Pin current window to ALL workspaces
+        , ("M-S-v", killAllOtherCopies)          -- Unpin the window (removes copies from other workspaces)
         ]
