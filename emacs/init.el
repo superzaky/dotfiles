@@ -1,6 +1,16 @@
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org") t)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+
+;; Fast window navigation using Modifier + Arrow keys
+(use-package windmove
+  :ensure nil ; Built-in, no installation required
+  :config
+  ;; Option A: Hold Meta (Alt) + Arrow keys to jump windows
+  (windmove-default-keybindings 'meta))
+
+;; turn off sound, for example, when there are no buffers to switch upon to the utmost right
+(setq ring-bell-function 'ignore)
 
 ;; Install Dape if not already installed
 (unless (package-installed-p 'dape)
