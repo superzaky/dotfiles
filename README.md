@@ -38,4 +38,19 @@ xmonad --recompile
 
 ### Emacs
 I downloaded this python debugger in Debian via the following command:
-sudo apt install python3-debugpy
+
+`sudo apt install python3-debugpy`
+
+For the IDE engine (eglot) to underline errors and know your method names, it requires a Python language server installed on your system. Open your system terminal and install the following:
+
+`sudo apt update`
+
+`sudo apt install python3-lsp-server`
+
+`sudo apt install pipx`
+
+`pipx ensurepath`
+
+`pipx install pyright`
+
+`pyright --version`
