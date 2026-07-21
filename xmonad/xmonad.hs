@@ -7,10 +7,20 @@ import XMonad.Util.Run (spawnPipe)
 import System.IO (hPutStrLn)
 import XMonad.Util.SpawnOnce (spawnOnce)
 import XMonad.Actions.CopyWindow (copyToAll, killAllOtherCopies)
+import XMonad.Hooks.ManageHelpers (doRectFloat)
+import XMonad.StackSet (RationalRect(..))
 
 -- Helper function to make workspaces clickable
 clickable :: String -> String
 clickable ws = "<action=`xdotool key super+" ++ ws ++ "`>" ++ ws ++ "</action>"
+
+-- Updated window rules to use standard doFloat and catch case differences
+myManageHook :: ManageHook
+myManageHook = composeAll
+    [ className =? "flameshot"  --> doFloat
+    , className =? "Flameshot"  --> doFloat
+    , title     =? "flameshot"  --> doFloat
+    ]
 
 main :: IO ()
 main = do
@@ -24,6 +34,7 @@ main = do
         , normalBorderColor = "#444b6a"
         , focusedBorderColor = "#ad8ee6"
         , startupHook        = spawnOnce "feh --bg-fill /home/zaky/Pictures/motorcycle_restaurant.jpg"
+        , manageHook         = myManageHook <+> manageHook def -- Connect the rules to the config
         , layoutHook         = avoidStruts $ layoutHook def -- This stops windows from covering the bar
         , logHook = dynamicLogWithPP xmobarPP
             { ppOutput          = hPutStrLn xmproc
@@ -54,4 +65,6 @@ main = do
         -- Video Pinning Bindings
         , ("M-v", windows copyToAll)              -- Pin current window to ALL workspaces
         , ("M-S-v", killAllOtherCopies)          -- Unpin the window (removes copies from other workspaces)
+        -- Flameshot Keybinding
+        , ("<Print>", spawn "flameshot gui")     -- Print Screen shortcut
         ]
