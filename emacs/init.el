@@ -8,10 +8,13 @@
     (package-refresh-contents)
     (package-install pkg)))
 
-;; --- 2. LINE NUMBERS & VISUALS ---
+;; --- 2. LINE NUMBERS & VISUALS (Theme Configuration) ---
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative)
 (setq ring-bell-function 'ignore)
+
+;; Load Modus Vivendi (Built-in Accessible Dark Theme)
+(load-theme 'modus-vivendi t)
 
 ;; --- 3. MANUAL HOVER DOCUMENTATION ---
 ;; Press C-c h to display documentation popup manually at point
@@ -21,10 +24,10 @@
 
 ;; --- 4. THE IDE ENGINE (Eglot Multi-Language Hooks) ---
 (dolist (hook '(python-mode-hook python-ts-mode-hook
-                 haskell-mode-hook
-                 csharp-mode-hook
-                 typescript-mode-hook tsx-mode-hook js-mode-hook js2-mode-hook
-                 html-mode-hook css-mode-hook scss-mode-hook))
+                haskell-mode-hook
+                csharp-mode-hook
+                typescript-mode-hook tsx-mode-hook js-mode-hook js2-mode-hook
+                html-mode-hook css-mode-hook scss-mode-hook))
   (add-hook hook 'eglot-ensure))
 
 ;; --- 5. AUTOCOMPLETE & POPUPS ---
@@ -55,43 +58,43 @@
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
 (use-package dape
   :ensure nil
-  :bind (("C-c d d" . dape)                   ; Safe custom prefix to avoid Dired conflicts
+  :bind (("C-c d d" . dape)                    ; Safe custom prefix to avoid Dired conflicts
          ("C-c d b" . dape-breakpoint-toggle))
   :config
   (setq dape-buffer-window-arrangement 'right)
   
   ;; Python Configuration
   (add-to-list 'dape-configs
-                `(debugpy
-                  modes (python-mode python-ts-mode)
-                  command "python3"
-                  args ("-m" "debugpy.adapter")
-                  :type "executable"
-                  :request "launch"
-                  :program dape-buffer-default))
+               `(debugpy
+                 modes (python-mode python-ts-mode)
+                 command "python3"
+                 args ("-m" "debugpy.adapter")
+                 :type "executable"
+                 :request "launch"
+                 :program dape-buffer-default))
 
   ;; HASKELL DEBUGGER ARCHITECTURE (Using the native GHC GHCi DAP provider)
   (add-to-list 'dape-configs
-                `(haskell-debug
-                  modes (haskell-mode)
-                  command "haskell-debug-adapter"
-                  :type "executable"
-                  :request "launch"
-                  :name "Haskell Dape"
-                  :workspace dape-cwd
-                  :startup dape-buffer-default
-                  :ghciCmd "cabal repl -w ghci-dap --repl-no-load"
-                  :ghciPrompt "H>>= "
-                  :ghciInitialPrompt "> "
-                  :logLevel "WARNING"
-                  :logFile "/tmp/hda.log"
-                  :stopOnEntry nil
-                  :forceInspect nil
-                  :startupFunc ""
-                  :startupArgs ""
-                  :mainArgs ""
-                  :ghciEnv ,(make-hash-table)             ; FIXED: Evaluates to an empty JSON object {}
-                  :internalConsoleOptions "neverOpen")))
+               `(haskell-debug
+                 modes (haskell-mode)
+                 command "haskell-debug-adapter"
+                 :type "executable"
+                 :request "launch"
+                 :name "Haskell Dape"
+                 :workspace dape-cwd
+                 :startup dape-buffer-default
+                 :ghciCmd "cabal repl -w ghci-dap --repl-no-load"
+                 :ghciPrompt "H>>= "
+                 :ghciInitialPrompt "> "
+                 :logLevel "WARNING"
+                 :logFile "/tmp/hda.log"
+                 :stopOnEntry nil
+                 :forceInspect nil
+                 :startupFunc ""
+                 :startupArgs ""
+                 :mainArgs ""
+                 :ghciEnv ,(make-hash-table)             ; FIXED: Evaluates to an empty JSON object {}
+                 :internalConsoleOptions "neverOpen")))
 
 ;; --- 9. GLOBAL KEYBINDINGS ---
 (global-set-key (kbd "C-c r")   'restart-emacs)
