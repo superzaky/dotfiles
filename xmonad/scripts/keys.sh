@@ -8,7 +8,7 @@ setxkbmap -layout us
 killall xcape 2>/dev/null
 
 # 2. Create a "spare" backslash, tab, and caps lock on invisible keys
-xmodmap -e "keycode 248 = backslash"
+xmodmap -e "keycode 248 = backslash bar"
 xmodmap -e "keycode 249 = Tab"
 xmodmap -e "keycode 250 = Caps_Lock"
 
