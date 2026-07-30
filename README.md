@@ -9,18 +9,23 @@ The following files need to be placed at the home directory, so at /home/<YOUR_U
 Regarding xmonad, ghc version 9.8.4 was used
 
 DEBIAN COMMANDS (if you are not using Debian, then use the equivalent command of the distro that you are using):
-sudo apt update && sudo apt install libghc-xmonad-contrib-dev xterm xmessage
-sudo apt update && sudo apt install libghc-xmonad-dev 
-sudo apt install alacritty
-sudo apt update && sudo apt install xmobar
-sudo apt update && sudo apt install xcape x11-xmodmap brightnessctl
+
+`sudo apt update && sudo apt install libghc-xmonad-contrib-dev xterm xmessage`
+
+`sudo apt update && sudo apt install libghc-xmonad-dev `
+
+`sudo apt install alacritty`
+
+`sudo apt update && sudo apt install xmobar`
+
+`sudo apt update && sudo apt install xcape x11-xmodmap brightnessctl`
 
 VOID COMMANDS (if you are not using Void Linux, then use the equivalent command of the distro that you are using):
 The following package is needed for clicking on a workspace in xmobar (note: xbps-install is command in Void Linux to install a package):
-sudo xbps-install -S xdotool
+`sudo xbps-install -S xdotool`
 
 Furthermore, the following script needs to become an executable, which can be done by doing the following:
-chmod +x ~/.config/xmonad/scripts/keys.sh
+`chmod +x ~/.config/xmonad/scripts/keys.sh`
 
 Instead of manually invoking the keys.sh via a shortcut (the shortcut can be read in xmonad.hs), you can also do this:
 
