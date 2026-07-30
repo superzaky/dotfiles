@@ -62,39 +62,39 @@
          ("C-c d b" . dape-breakpoint-toggle))
   :config
   (setq dape-buffer-window-arrangement 'right)
-  
+
   ;; Python Configuration
   (add-to-list 'dape-configs
-               `(debugpy
-                 modes (python-mode python-ts-mode)
-                 command "python3"
-                 args ("-m" "debugpy.adapter")
-                 :type "executable"
-                 :request "launch"
-                 :program dape-buffer-default))
+                `(debugpy
+                  modes (python-mode python-ts-mode)
+                  command "python3"
+                  args ("-m" "debugpy.adapter")
+                  :type "executable"
+                  :request "launch"
+                  :program dape-buffer-default))
 
   ;; HASKELL DEBUGGER ARCHITECTURE (Using the native GHC GHCi DAP provider)
   (add-to-list 'dape-configs
-               `(haskell-debug
-                 modes (haskell-mode)
-                 command "haskell-debug-adapter"
-                 :type "executable"
-                 :request "launch"
-                 :name "Haskell Dape"
-                 :workspace dape-cwd
-                 :startup dape-buffer-default
-                 :ghciCmd "cabal repl -w ghci-dap --repl-no-load"
-                 :ghciPrompt "H>>= "
-                 :ghciInitialPrompt "> "
-                 :logLevel "WARNING"
-                 :logFile "/tmp/hda.log"
-                 :stopOnEntry nil
-                 :forceInspect nil
-                 :startupFunc ""
-                 :startupArgs ""
-                 :mainArgs ""
-                 :ghciEnv ,(make-hash-table)             ; FIXED: Evaluates to an empty JSON object {}
-                 :internalConsoleOptions "neverOpen")))
+                `(haskell-debug
+                  modes (haskell-mode)
+                  command "haskell-debug-adapter"
+                  :type "executable"
+                  :request "launch"
+                  :name "Haskell Dape"
+                  :workspace dape-cwd
+                  :startup dape-buffer-default
+                  :ghciCmd "cabal repl -w ghci-dap --repl-no-load"
+                  :ghciPrompt "H>>= "
+                  :ghciInitialPrompt "> "
+                  :logLevel "WARNING"
+                  :logFile "/tmp/hda.log"
+                  :stopOnEntry nil
+                  :forceInspect nil
+                  :startupFunc ""
+                  :startupArgs ""
+                  :mainArgs ""
+                  :ghciEnv ,(make-hash-table)             ; FIXED: Evaluates to an empty JSON object {}
+                  :internalConsoleOptions "neverOpen")))
 
 ;; --- 9. GLOBAL KEYBINDINGS ---
 (global-set-key (kbd "C-c r")   'restart-emacs)
@@ -113,6 +113,14 @@
           (lambda ()
             (setq display-line-numbers-type t)
             (display-line-numbers-mode 1)))
+
+;; --- 11. EDIFF / MAGIT SIDE-BY-SIDE DIFF CONFIGURATION ---
+;; Force Ediff to split windows side-by-side horizontally instead of stacked vertically
+(setq ediff-split-window-function 'split-window-horizontally)
+;; Keep the Ediff control panel inside the same frame instead of opening a separate mini-frame
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+;; Force magit-ediff-dwim ('e') to prefer 2-way side-by-side diffs over 3-way diffs
+(setq magit-ediff-dwim-show-on-hunks t)
 
 (custom-set-variables
  '(package-selected-packages '(dape vertico orderless corfu marginalia cape magit eldoc-box auctex scss-mode haskell-mode)))
