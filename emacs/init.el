@@ -100,6 +100,20 @@
 (global-set-key (kbd "C-c r")   'restart-emacs)
 (global-set-key (kbd "C-x g")   'magit-status)
 
+;; --- 10. MAGIT LINE NUMBERS ---
+;; Allow line numbers inside Magit but target only active diff buffers
+(setq magit-section-disable-line-numbers nil)
+(add-hook 'magit-diff-mode-hook
+          (lambda ()
+            (setq display-line-numbers-type t) ; Force absolute mode globally for this buffer
+            (display-line-numbers-mode 1)))
+
+;; ADD LINE NUMBERS FOR MAGIT STATUS BUFFER:
+(add-hook 'magit-status-mode-hook
+          (lambda ()
+            (setq display-line-numbers-type t)
+            (display-line-numbers-mode 1)))
+
 (custom-set-variables
  '(package-selected-packages '(dape vertico orderless corfu marginalia cape magit eldoc-box auctex scss-mode haskell-mode)))
 (custom-set-faces)
