@@ -14,7 +14,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode))
+(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep))
   (unless (package-installed-p pkg)
     (package-install pkg)))
 
@@ -50,7 +50,7 @@
         corfu-auto-prefix 2
         corfu-popupinfo-mode t))     ; Required: Shows method/function docs inside the completion menu
 
-;; --- 6. FUZZY SEARCH ---
+;; --- 6. FUZZY SEARCH & TELESCOPE EQUIVALENTS ---
 (vertico-mode 1)
 (use-package orderless
   :init
@@ -58,6 +58,26 @@
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 (marginalia-mode 1)
+
+;; Consult (Telescope-like live searching & navigation)
+(use-package consult
+  :bind (;; Search content in project (like Telescope live_grep)
+         ("C-c f g" . consult-ripgrep)
+         ("C-c s r" . consult-ripgrep)
+         
+         ;; Search content in current buffer (like Telescope current_buffer_fuzzy_find)
+         ("C-s"     . consult-line)
+         
+         ;; Find files in project (like Telescope find_files)
+         ("C-c f f" . consult-fd)
+         
+         ;; Switch buffers with preview (like Telescope buffers)
+         ("C-x b"   . consult-buffer)))
+
+;; Wgrep (Allows editing ripgrep search results directly in the buffer)
+(use-package wgrep
+  :config
+  (setq wgrep-auto-save-buffer t))
 
 ;; --- 7. WINDOW NAVIGATION ---
 (use-package windmove
