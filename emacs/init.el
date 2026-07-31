@@ -1,11 +1,21 @@
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+
+;; Configure package archives (GNU ELPA & MELPA)
+(setq package-archives '(("gnu"   . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
+
+;; Avoid TLS network handshake issues common on Windows
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
 (package-initialize)
 
 ;; --- 1. AUTOMATIC PACKAGE INSTALLATION ---
+;; Ensure package metadata exists before attempting to install
+(unless package-archive-contents
+  (package-refresh-contents))
+
 (dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode))
   (unless (package-installed-p pkg)
-    (package-refresh-contents)
     (package-install pkg)))
 
 ;; --- 2. LINE NUMBERS & VISUALS (Theme Configuration) ---
@@ -58,7 +68,7 @@
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
 (use-package dape
   :ensure nil
-  :bind (("C-c d d" . dape)                    ; Safe custom prefix to avoid Dired conflicts
+  :bind (("C-c d d" . dape)                     ; Safe custom prefix to avoid Dired conflicts
          ("C-c d b" . dape-breakpoint-toggle))
   :config
   (setq dape-buffer-window-arrangement 'right)
@@ -93,7 +103,7 @@
                   :startupFunc ""
                   :startupArgs ""
                   :mainArgs ""
-                  :ghciEnv ,(make-hash-table)             ; FIXED: Evaluates to an empty JSON object {}
+                  :ghciEnv ,(make-hash-table)             ; Evaluates to an empty JSON object {}
                   :internalConsoleOptions "neverOpen")))
 
 ;; --- 9. GLOBAL KEYBINDINGS ---
@@ -123,5 +133,14 @@
 (setq magit-ediff-dwim-show-on-hunks t)
 
 (custom-set-variables
- '(package-selected-packages '(dape vertico orderless corfu marginalia cape magit eldoc-box auctex scss-mode haskell-mode)))
-(custom-set-faces)
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
