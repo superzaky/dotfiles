@@ -79,11 +79,27 @@
   :config
   (setq wgrep-auto-save-buffer t))
 
-;; --- 7. WINDOW NAVIGATION ---
+;; --- 7. WINDOW MANAGEMENT & NAVIGATION ---
 (use-package windmove
   :ensure nil
   :config
-  (windmove-default-keybindings 'meta))
+  ;; Maak een nieuwe keymap aan voor alle vensteracties onder M-m
+  (define-prefix-command 'mijn-venster-map)
+  (global-set-key (kbd "M-m") 'mijn-venster-map)
+
+  ;; A. Navigeren tussen vensters (Windmove hjkl)
+  (define-key mijn-venster-map (kbd "h") 'windmove-left)
+  (define-key mijn-venster-map (kbd "j") 'windmove-down)
+  (define-key mijn-venster-map (kbd "k") 'windmove-up)
+  (define-key mijn-venster-map (kbd "l") 'windmove-right)
+
+  ;; B. Vensters splitsen
+  (define-key mijn-venster-map (kbd "v") 'split-window-right)  ; 'v' van Verticaal
+  (define-key mijn-venster-map (kbd "s") 'split-window-below)  ; 's' van Splitsen/Horizontaal
+
+  ;; C. Vensters sluiten
+  (define-key mijn-venster-map (kbd "x") 'delete-window)        ; 'x' sluit huidige venster
+  (define-key mijn-venster-map (kbd "o") 'delete-other-windows)) ; 'o' behoudt Only dit venster
 
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
 (use-package dape
@@ -164,3 +180,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
