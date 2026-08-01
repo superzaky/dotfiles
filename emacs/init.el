@@ -79,11 +79,11 @@
   :config
   (setq wgrep-auto-save-buffer t))
 
-;; --- 7. WINDOW MANAGEMENT & NAVIGATION ---
+;; --- 7. WINDOW & PROJECT MANAGEMENT ---
 (use-package windmove
   :ensure nil
   :config
-  ;; Maak een nieuwe keymap aan voor alle vensteracties onder M-m
+  ;; Maak een nieuwe keymap aan voor alle acties onder M-m
   (define-prefix-command 'mijn-venster-map)
   (global-set-key (kbd "M-m") 'mijn-venster-map)
 
@@ -99,7 +99,12 @@
 
   ;; C. Vensters sluiten
   (define-key mijn-venster-map (kbd "x") 'delete-window)        ; 'x' sluit huidige venster
-  (define-key mijn-venster-map (kbd "o") 'delete-other-windows)) ; 'o' behoudt Only dit venster
+  (define-key mijn-venster-map (kbd "o") 'delete-other-windows) ; 'o' behoudt Only dit venster
+
+  ;; D. Projectbeheer (Voor Angular & .NET isolatie)
+  (define-key mijn-venster-map (kbd "p p") 'project-switch-project) ; Wissel tussen Angular en .NET
+  (define-key mijn-venster-map (kbd "p f") 'project-find-file)      ; Zoek bestand binnen huidig project
+  (define-key mijn-venster-map (kbd "p s") 'project-shell))         ; Open terminal voor dit specifieke project
 
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
 (use-package dape
