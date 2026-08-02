@@ -54,10 +54,15 @@
           scss-mode) . lsp-deferred)
   :commands (lsp lsp-deferred)
   :config
-  ;; Performance optimizations for lsp-mode
+  ;; Performance & Compatibility fixes for lsp-mode
   (setq lsp-idle-delay 0.5
         lsp-log-io nil
-        lsp-completion-provider :none) ; Let Corfu handle completion popups
+        lsp-completion-provider :none       ; Let Corfu handle completion popups
+        lsp-completion-enable-additional-text-edit nil ; Prevent auto-import payload crashes
+        lsp-configure-smarter-completion-look nil)
+
+  ;; WORKAROUND: Disable completion item resolve for ghcide payload bug
+  (setq lsp-completion-no-auto-import t)
 
   ;; Integrate lsp-mode with Orderless fuzzy matching
   (defun my/lsp-mode-setup-completion ()
