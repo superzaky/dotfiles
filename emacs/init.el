@@ -16,7 +16,12 @@
 
 (dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep))
   (unless (package-installed-p pkg)
-    (package-install pkg)))
+    (condition-case nil
+        (package-install pkg)
+      (error
+       ;; If installation fails due to an outdated MELPA index, refresh and retry once
+       (package-refresh-contents)
+       (package-install pkg)))))
 
 ;; --- 2. LINE NUMBERS & VISUALS (Theme Configuration) ---
 (global-display-line-numbers-mode t)
@@ -103,7 +108,7 @@
 
   ;; D. Projectbeheer (Voor Angular & .NET isolatie)
   (define-key mijn-venster-map (kbd "p p") 'project-switch-project) ; Wissel tussen Angular en .NET
-  (define-key mijn-venster-map (kbd "p f") 'project-find-file)      ; Zoek bestand binnen huidig project
+  (define-key mijn-venster-map (kbd "p f") 'project-find-file)       ; Zoek bestand binnen huidig project
   (define-key mijn-venster-map (kbd "p s") 'project-shell))         ; Open terminal voor dit specifieke project
 
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
@@ -185,4 +190,3 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
