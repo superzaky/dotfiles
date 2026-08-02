@@ -14,7 +14,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep))
+(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell))
   (unless (package-installed-p pkg)
     (condition-case nil
         (package-install pkg)
@@ -37,13 +37,47 @@
 (global-set-key (kbd "C-c h") #'eldoc-box-help-at-point)
 (global-set-key (kbd "C-c q") #'eldoc-box-quit-frame)
 
-;; --- 4. THE IDE ENGINE (Eglot Multi-Language Hooks) ---
-(dolist (hook '(python-mode-hook python-ts-mode-hook
-                haskell-mode-hook
-                csharp-mode-hook
-                typescript-mode-hook tsx-mode-hook js-mode-hook js2-mode-hook
-                html-mode-hook css-mode-hook scss-mode-hook))
-  (add-hook hook 'eglot-ensure))
+;; --- 4. THE IDE ENGINE (LSP-Mode Configuration & Language Extensions) ---
+(use-package lsp-mode
+  :init
+  ;; Set prefix for lsp-command-keymap (e.g. C-c l r to rename, C-c l a for code actions)
+  (setq lsp-keymap-prefix "C-c l")
+  :hook ((python-mode
+          python-ts-mode
+          csharp-mode
+          typescript-mode
+          tsx-mode
+          js-mode
+          js2-mode
+          html-mode
+          css-mode
+          scss-mode) . lsp-deferred)
+  :commands (lsp lsp-deferred)
+  :config
+  ;; Performance optimizations for lsp-mode
+  (setq lsp-idle-delay 0.5
+        lsp-log-io nil
+        lsp-completion-provider :none) ; Let Corfu handle completion popups
+
+  ;; Integrate lsp-mode with Orderless fuzzy matching
+  (defun my/lsp-mode-setup-completion ()
+    (setq-local completion-category-defaults nil))
+  (add-hook 'lsp-mode-hook #'my/lsp-mode-setup-completion))
+
+;; LSP UI Enhancements (Hover popups, sidebars, definitions)
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-doc-enable t
+        lsp-ui-doc-delay 0.2
+        lsp-ui-doc-position 'at-point
+        lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-hover t))
+
+;; Haskell Language Server Integration
+(use-package lsp-haskell
+  :hook (haskell-mode . lsp-deferred))
 
 ;; --- 5. AUTOCOMPLETE & POPUPS ---
 (use-package corfu
