@@ -1,2 +1,17 @@
 /emacs/eln-cache
 /emacs/elpa
+emacs/.cache/
+emacs/tree-sitter/*.so
+emacs/auto-save-list/*
+emacs/projects
+emacs/transient/history.el
+emacs/eshell/*
+xmonad/.ghc.environment.x86_64-linux-9.8.4
+emacs/.lsp-session-v1
+emacs/\#*\#
+bspwm/\#*\#
+bspwm/.\#*
+emacs/init.el~
+tmp.txt~
+.\#*
+\#*.*\#
