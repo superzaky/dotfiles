@@ -14,7 +14,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell))
+(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell smartparens emmet-mode))
   (unless (package-installed-p pkg)
     (condition-case nil
         (package-install pkg)
@@ -23,7 +23,7 @@
        (package-refresh-contents)
        (package-install pkg)))))
 
-;; --- 2. LINE NUMBERS & VISUALS (Theme Configuration) ---
+;; --- 2. LINE NUMBERS, VISUALS & AUTOMATED TREE-SITTER ---
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative)
 (setq ring-bell-function 'ignore)
@@ -31,13 +31,42 @@
 ;; Load Modus Vivendi (Built-in Accessible Dark Theme)
 (load-theme 'modus-vivendi t)
 
+;; Force Emacs to auto-remap classic modes to modern Tree-sitter modes
+(setq major-mode-remap-alist
+      '((typescript-mode . typescript-ts-mode)
+        (tsx-mode        . tsx-ts-mode)
+        (js-mode         . js-ts-mode)
+        (javascript-mode . js-ts-mode)
+        (python-mode     . python-ts-mode)
+        (csharp-mode     . csharp-ts-mode)
+        (css-mode        . css-ts-mode)
+        (html-mode       . html-ts-mode)))
+
+;; Associate .ts and .tsx files directly with Tree-sitter modes
+(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+
+(setq treesit-language-source-alist
+      '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src")
+        (python "https://github.com/tree-sitter/tree-sitter-python" "v0.20.4")
+        (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp" "v0.20.0")
+        (json "https://github.com/tree-sitter/tree-sitter-json" "v0.20.2")
+        (css "https://github.com/tree-sitter/tree-sitter-css" "v0.20.0")
+        (html "https://github.com/tree-sitter/tree-sitter-html" "v0.20.1")))
+
+(dolist (grammar treesit-language-source-alist)
+  (let ((lang (car grammar)))
+    (unless (treesit-language-available-p lang)
+      (treesit-install-language-grammar lang))))
+
 ;; --- 3. MANUAL HOVER DOCUMENTATION ---
 ;; Press C-c h to display documentation popup manually at point
 ;; Press C-c q to close the popup frame
 (global-set-key (kbd "C-c h") #'eldoc-box-help-at-point)
 (global-set-key (kbd "C-c q") #'eldoc-box-quit-frame)
 
-;; --- 4. THE IDE ENGINE (LSP-Mode Configuration & Language Extensions) ---
+;; --- 4. THE IDE ENGINE (LSP Multiplexing & Language Extensions) ---
 (use-package lsp-mode
   :init
   ;; Set prefix for lsp-command-keymap (e.g. C-c l r to rename, C-c l a for code actions)
@@ -45,60 +74,185 @@
   :hook ((python-mode
           python-ts-mode
           csharp-mode
+          csharp-ts-mode
           typescript-mode
+          typescript-ts-mode
           tsx-mode
+          tsx-ts-mode
           js-mode
+          js-ts-mode
           js2-mode
           html-mode
+          html-ts-mode
+          mhtml-mode
           css-mode
+          css-ts-mode
           scss-mode) . lsp-deferred)
   :commands (lsp lsp-deferred)
   :config
-  ;; Performance & Compatibility fixes for lsp-mode
+  (setq lsp-disabled-clients nil)
+
+  ;; Configure default TypeScript client settings
+  (setq lsp-clients-typescript-init-opts '(:importModuleSpecifierPreference "relative"))
+
+  ;; Fully disable LSP modeline indicators to fix crashes
+  (setq lsp-modeline-code-actions-enable nil
+        lsp-modeline-diagnostics-enable nil
+        lsp-modeline-workspace-status-enable nil)
+
+  ;; Fix lsp--on-idle timer & hash-table race conditions
   (setq lsp-idle-delay 0.5
         lsp-log-io nil
-        lsp-completion-provider :none       ; Let Corfu handle completion popups
-        lsp-completion-enable-additional-text-edit nil ; Prevent auto-import payload crashes
-        lsp-configure-smarter-completion-look nil)
+        lsp-completion-provider :capf          ; Standard Completion At Point Function
+        lsp-completion-filter-on-kind nil      ; Do NOT let LSP filter out keyword candidates
+        lsp-enable-on-type-formatting nil       ; Disable idle background formatting edits
+        lsp-enable-indentation nil             ; Prevents background indent checks
+        lsp-enable-snippet t
+        lsp-completion-enable-additional-text-edit t
+        lsp-completion-show-detail t
+        lsp-completion-show-kind t
+        lsp-enable-symbol-highlighting nil     ; Stops idle symbol highlights
+        lsp-completion-no-auto-import nil
+        lsp-response-timeout 10)
 
-  ;; WORKAROUND: Disable completion item resolve for ghcide payload bug
-  (setq lsp-completion-no-auto-import t)
+  ;; Prevent lsp--on-idle timer errors when server is stopped or uninitialized
+  (advice-add 'lsp--on-idle :around
+              (lambda (orig-fun &rest args)
+                (when (and (bound-and-true-p lsp-mode)
+                           (lsp-workspaces))
+                  (ignore-errors (apply orig-fun args)))))
 
-  ;; Integrate lsp-mode with Orderless fuzzy matching
+  ;; Enable Orderless fuzzy completion for LSP results
   (defun my/lsp-mode-setup-completion ()
-    (setq-local completion-category-defaults nil))
+    (setq-local completion-category-defaults nil)
+    (setq-local completion-styles '(orderless flex basic)))
   (add-hook 'lsp-mode-hook #'my/lsp-mode-setup-completion))
 
-;; LSP UI Enhancements (Hover popups, sidebars, definitions)
+;; --- 4b. WORKAROUND: auto-create missing `bin/tsserver` shim ---
+;; Recent `typescript` npm releases no longer ship a `bin/tsserver` entry
+;; in their package.json, so npm never creates the executable shim that
+;; lsp-mode's ts-ls client expects at
+;; <lsp-server-install-dir>/npm/typescript/bin/tsserver
+;; This self-heals that on any machine, as long as `M-x lsp-install-server
+;; RET ts-ls RET` (or the first lsp-deferred trigger) has downloaded the
+;; `typescript` package into lsp-mode's cache.
+(defun my/lsp-ensure-tsserver-shim ()
+  "Create a `tsserver' executable shim for lsp-mode's managed typescript
+install, if the managed `typescript' package exists but is missing its
+`bin/tsserver' entry."
+  (let* ((ts-dir (expand-file-name "npm/typescript" lsp-server-install-dir))
+         (bin-dir (expand-file-name "bin" ts-dir))
+         (shim (expand-file-name "tsserver" bin-dir))
+         (target (expand-file-name
+                  "lib/node_modules/typescript/lib/tsserver.js" ts-dir)))
+    (when (and (file-exists-p target)
+               (not (file-executable-p shim)))
+      (make-directory bin-dir t)
+      (with-temp-file shim
+        (insert "#!/usr/bin/env bash\n")
+        (insert (format "exec node \"%s\" \"$@\"\n" target)))
+      (set-file-modes shim #o755)
+      (message "lsp-mode: created missing tsserver shim at %s" shim))))
+
+(defun my/lsp--npm-dependency-path-advice (orig-fun &rest args)
+  "Retry ORIG-FUN once after attempting to create a missing tsserver shim."
+  (condition-case _err
+      (apply orig-fun args)
+    (error
+     (my/lsp-ensure-tsserver-shim)
+     (apply orig-fun args))))
+
+(with-eval-after-load 'lsp-mode
+  (advice-add 'lsp--npm-dependency-path :around
+              #'my/lsp--npm-dependency-path-advice))
+
 (use-package lsp-ui
   :commands lsp-ui-mode
   :config
   (setq lsp-ui-doc-enable t
         lsp-ui-doc-delay 0.2
         lsp-ui-doc-position 'at-point
-        lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-hover t))
+        lsp-ui-sideline-enable nil
+        lsp-ui-sideline-show-diagnostics nil
+        lsp-ui-sideline-show-hover nil))
 
 ;; Haskell Language Server Integration
 (use-package lsp-haskell
   :hook (haskell-mode . lsp-deferred))
 
-;; --- 5. AUTOCOMPLETE & POPUPS ---
+;; Angular Language Server Integration
+(use-package lsp-angular
+  :ensure nil
+  :hook ((typescript-mode
+          typescript-ts-mode
+          html-mode
+          html-ts-mode) . lsp-deferred)
+  :config
+  (setq lsp-clients-angular-language-server-command
+        '("ngserver"
+          "--stdio"
+          "--tsProbeLocations" "/usr/local/lib/node_modules,./node_modules,/usr/lib/node_modules"
+          "--ngProbeLocations" "/usr/local/lib/node_modules,./node_modules,/usr/lib/node_modules")))
+
+;; --- EMMET & AUTOMATIC HTML TAG EXPANSION ---
+(use-package emmet-mode
+  :hook ((html-mode . emmet-mode)
+         (html-ts-mode . emmet-mode)
+         (mhtml-mode . emmet-mode)
+         (web-mode . emmet-mode)
+         (tsx-ts-mode . emmet-mode))
+  :config
+  (setq emmet-move-cursor-after-expanding t
+        emmet-self-closing-tag-style "html")
+  ;; Bind TAB explicitly to expand Emmet snippets
+  (define-key emmet-mode-keymap (kbd "TAB") #'emmet-expand-line)
+  (define-key emmet-mode-keymap (kbd "<tab>") #'emmet-expand-line))
+
+(use-package smartparens
+  :hook ((html-mode . smartparens-mode)
+         (html-ts-mode . smartparens-mode)
+         (mhtml-mode . smartparens-mode)
+         (web-mode . smartparens-mode)
+         (tsx-ts-mode . smartparens-mode))
+  :config
+  (require 'smartparens-html)
+  (smartparens-global-mode t)
+  (sp-with-modes '(html-mode html-ts-mode mhtml-mode web-mode tsx-ts-mode)
+    (sp-local-pair "<" ">" :actions '(insert wrap))))
+
+;; --- 5. AUTOCOMPLETE, POPUPS & ANGULAR INTERPOLATION ---
 (use-package corfu
   :init
   (global-corfu-mode)
   :config
   (setq corfu-auto t
-        corfu-auto-delay 0.1
-        corfu-auto-prefix 2
-        corfu-popupinfo-mode t))     ; Required: Shows method/function docs inside the completion menu
+        corfu-auto-delay 0.02           ; Faster popup delay
+        corfu-auto-prefix 1
+        corfu-popupinfo-mode t   ; Required: Shows method/function docs inside the completion menu
+        corfu-preview-current nil)      ; Don't insert preview while typing
+
+  ;; Ensure TAB selects/accepts corfu candidate smoothly
+  (define-key corfu-map (kbd "TAB") #'corfu-complete)
+  (define-key corfu-map (kbd "<tab>") #'corfu-complete))
+
+(use-package cape
+  :init
+  ;; Supercharge LSP completion by merging it with Cape's keyword table
+  (defun my/setup-lsp-capf-super ()
+    (setq-local completion-at-point-functions
+                (list (cape-capf-super
+                        #'lsp-completion-at-point
+                        #'cape-keyword
+                        #'cape-dabbrev))))
+
+  ;; Run at depth 90 to ensure this overrides lsp-mode's default CAPF backend
+  (add-hook 'lsp-mode-hook #'my/setup-lsp-capf-super 90))
 
 ;; --- 6. FUZZY SEARCH & TELESCOPE EQUIVALENTS ---
 (vertico-mode 1)
 (use-package orderless
   :init
-  (setq completion-styles '(orderless basic)
+  (setq completion-styles '(orderless flex basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 (marginalia-mode 1)
