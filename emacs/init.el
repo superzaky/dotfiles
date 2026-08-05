@@ -42,9 +42,10 @@
         (css-mode        . css-ts-mode)
         (html-mode       . html-ts-mode)))
 
-;; Associate .ts and .tsx files directly with Tree-sitter modes
+;; Associate .ts, .html, and .tsx files directly with Tree-sitter modes
 (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.html\\'" . html-ts-mode))
 
 (setq treesit-language-source-alist
       '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src")
@@ -90,56 +91,53 @@
           scss-mode) . lsp-deferred)
   :commands (lsp lsp-deferred)
   :config
-  (setq lsp-disabled-clients nil)
+  ;; Disable html-ls so angular-ls takes over .html files in Angular projects
+  (setq lsp-disabled-clients '(html-ls))
 
-  ;; Configure default TypeScript client settings
+  ;; Cross-platform executable path fixes for Windows (.cmd / .bat resolving)
+  (when (eq system-type 'windows-nt)
+    (setq lsp-clients-typescript-server "typescript-language-server")
+    (setq lsp-clients-typescript-command '("typescript-language-server.cmd" "--stdio")))
+
   (setq lsp-clients-typescript-init-opts '(:importModuleSpecifierPreference "relative"))
 
-  ;; Fully disable LSP modeline indicators to fix crashes
+  ;; Modeline configuration
   (setq lsp-modeline-code-actions-enable nil
         lsp-modeline-diagnostics-enable nil
         lsp-modeline-workspace-status-enable nil)
 
-  ;; Fix lsp--on-idle timer & hash-table race conditions
-  (setq lsp-idle-delay 0.5
+  ;; Performance & completion behavior settings
+  (setq lsp-idle-delay 0.2
         lsp-log-io nil
-        lsp-completion-provider :capf          ; Standard Completion At Point Function
-        lsp-completion-filter-on-kind nil      ; Do NOT let LSP filter out keyword candidates
-        lsp-enable-on-type-formatting nil       ; Disable idle background formatting edits
-        lsp-enable-indentation nil             ; Prevents background indent checks
+        lsp-completion-provider :capf  ; Standard Completion At Point Function
+        lsp-completion-filter-on-kind nil  ; Do NOT let LSP filter out keyword candidates
+        lsp-enable-on-type-formatting nil   ; Disable idle background formatting edits
+        lsp-enable-indentation nil   ; Prevents background indent checks
         lsp-enable-snippet t
         lsp-completion-enable-additional-text-edit t
         lsp-completion-show-detail t
         lsp-completion-show-kind t
-        lsp-enable-symbol-highlighting nil     ; Stops idle symbol highlights
+        lsp-enable-symbol-highlighting nil ; Stops idle symbol highlights
         lsp-completion-no-auto-import nil
         lsp-response-timeout 10)
 
-  ;; Prevent lsp--on-idle timer errors when server is stopped or uninitialized
+  ;; Prevent lsp--on-idle timer crashes
   (advice-add 'lsp--on-idle :around
               (lambda (orig-fun &rest args)
                 (when (and (bound-and-true-p lsp-mode)
                            (lsp-workspaces))
                   (ignore-errors (apply orig-fun args)))))
 
-  ;; Enable Orderless fuzzy completion for LSP results
+  ;; Enable Orderless fuzzy completion for LSP candidates
   (defun my/lsp-mode-setup-completion ()
     (setq-local completion-category-defaults nil)
     (setq-local completion-styles '(orderless flex basic)))
   (add-hook 'lsp-mode-hook #'my/lsp-mode-setup-completion))
 
-;; --- 4b. WORKAROUND: auto-create missing `bin/tsserver` shim ---
-;; Recent `typescript` npm releases no longer ship a `bin/tsserver` entry
-;; in their package.json, so npm never creates the executable shim that
-;; lsp-mode's ts-ls client expects at
-;; <lsp-server-install-dir>/npm/typescript/bin/tsserver
-;; This self-heals that on any machine, as long as `M-x lsp-install-server
-;; RET ts-ls RET` (or the first lsp-deferred trigger) has downloaded the
-;; `typescript` package into lsp-mode's cache.
+;; --- 4b. WORKAROUND: Auto-create missing `bin/tsserver` shim ---
 (defun my/lsp-ensure-tsserver-shim ()
   "Create a `tsserver' executable shim for lsp-mode's managed typescript
-install, if the managed `typescript' package exists but is missing its
-`bin/tsserver' entry."
+install if missing on Windows or Unix."
   (let* ((ts-dir (expand-file-name "npm/typescript" lsp-server-install-dir))
          (bin-dir (expand-file-name "bin" ts-dir))
          (shim (expand-file-name "tsserver" bin-dir))
@@ -155,7 +153,6 @@ install, if the managed `typescript' package exists but is missing its
       (message "lsp-mode: created missing tsserver shim at %s" shim))))
 
 (defun my/lsp--npm-dependency-path-advice (orig-fun &rest args)
-  "Retry ORIG-FUN once after attempting to create a missing tsserver shim."
   (condition-case _err
       (apply orig-fun args)
     (error
@@ -180,19 +177,39 @@ install, if the managed `typescript' package exists but is missing its
 (use-package lsp-haskell
   :hook (haskell-mode . lsp-deferred))
 
-;; Angular Language Server Integration
+;; --- ANGULAR LANGUAGE SERVER CONFIGURATION ---
 (use-package lsp-angular
   :ensure nil
   :hook ((typescript-mode
           typescript-ts-mode
           html-mode
-          html-ts-mode) . lsp-deferred)
+          html-ts-mode
+          mhtml-mode) . lsp-deferred)
   :config
-  (setq lsp-clients-angular-language-server-command
-        '("ngserver"
-          "--stdio"
-          "--tsProbeLocations" "/usr/local/lib/node_modules,./node_modules,/usr/lib/node_modules"
-          "--ngProbeLocations" "/usr/local/lib/node_modules,./node_modules,/usr/lib/node_modules")))
+  (defun my/lsp-angular-get-probe-locations ()
+    "Gather node_modules paths from active workspace root, current directory, and global npm."
+    (let* ((proj-root (or (lsp-workspace-root)
+                          (and (fboundp 'project-root)
+                               (project-current)
+                               (project-root (project-current)))
+                          default-directory))
+           (local-node (expand-file-name "node_modules" proj-root))
+           (global-node (expand-file-name "npm/node_modules" (getenv "APPDATA"))))
+      (delq nil (mapcar (lambda (path)
+                          (when (and path (file-directory-p path)) path))
+                        (list local-node global-node)))))
+
+  (defun my/lsp-angular-command-advice (&rest _args)
+    (let* ((probes (my/lsp-angular-get-probe-locations))
+           (ng-cmd (if (eq system-type 'windows-nt) "ngserver.cmd" "ngserver"))
+           (cmd-args `(,ng-cmd "--stdio")))
+      (dolist (loc probes)
+        (setq cmd-args (append cmd-args `("--tsProbeLocations" ,loc
+                                         "--ngProbeLocations" ,loc))))
+      (setq lsp-clients-angular-language-server-command cmd-args)))
+
+  (advice-add 'lsp-angular--create-connection :before #'my/lsp-angular-command-advice)
+  (setq lsp-angular-suggest-use-minimal-type-imports t))
 
 ;; --- EMMET & AUTOMATIC HTML TAG EXPANSION ---
 (use-package emmet-mode
@@ -218,33 +235,36 @@ install, if the managed `typescript' package exists but is missing its
   (require 'smartparens-html)
   (smartparens-global-mode t)
   (sp-with-modes '(html-mode html-ts-mode mhtml-mode web-mode tsx-ts-mode)
-    (sp-local-pair "<" ">" :actions '(insert wrap))))
+    (sp-local-pair "<" ">" :actions '(insert wrap))
+    (sp-local-pair "{{" "}}" :post-handlers '("| "))
+    (sp-local-pair "{" "}" :unless '(sp-in-string-p))))
 
-;; --- 5. AUTOCOMPLETE, POPUPS & ANGULAR INTERPOLATION ---
+;; --- 5. AUTOCOMPLETE, POPUPS & CORFU/CAPE CAPF INTEGRATION ---
 (use-package corfu
   :init
   (global-corfu-mode)
   :config
   (setq corfu-auto t
-        corfu-auto-delay 0.02           ; Faster popup delay
+        corfu-auto-delay 0.05
         corfu-auto-prefix 1
-        corfu-popupinfo-mode t   ; Required: Shows method/function docs inside the completion menu
-        corfu-preview-current nil)      ; Don't insert preview while typing
+        corfu-popupinfo-mode t
+        corfu-preview-current nil
+        corfu-quit-no-match 'separator
+        corfu-quit-at-boundary nil)
 
-  ;; Ensure TAB selects/accepts corfu candidate smoothly
   (define-key corfu-map (kbd "TAB") #'corfu-complete)
   (define-key corfu-map (kbd "<tab>") #'corfu-complete))
 
 (use-package cape
   :init
-  ;; Supercharge LSP completion by merging it with Cape's keyword table
   (defun my/setup-lsp-capf-super ()
+    "Configure completion-at-point-functions safely for LSP and Cape."
     (setq-local completion-at-point-functions
-                (list (cape-capf-super
-                        #'lsp-completion-at-point
-                        #'cape-keyword
-                        #'cape-dabbrev))))
+                (list #'lsp-completion-at-point
+                      #'cape-dabbrev
+                      #'cape-keyword)))
 
+  (setq cape-dabbrev-check-other-buffers t)
   ;; Run at depth 90 to ensure this overrides lsp-mode's default CAPF backend
   (add-hook 'lsp-mode-hook #'my/setup-lsp-capf-super 90))
 
@@ -254,7 +274,8 @@ install, if the managed `typescript' package exists but is missing its
   :init
   (setq completion-styles '(orderless flex basic)
         completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+        completion-category-overrides '((file (styles partial-completion))
+                                       (lsp-capf (styles basic orderless)))))
 (marginalia-mode 1)
 
 ;; Consult (Telescope-like live searching & navigation)
