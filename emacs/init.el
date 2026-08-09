@@ -25,7 +25,7 @@
 
 ;; --- 2. LINE NUMBERS, VISUALS & AUTOMATED TREE-SITTER ---
 (global-display-line-numbers-mode t)
-(setq display-line-numbers-type 'relative)
+;;(setq display-line-numbers-type 'relative)
 (setq ring-bell-function 'ignore)
 
 ;; Load Modus Vivendi (Built-in Accessible Dark Theme)
@@ -117,7 +117,7 @@
         lsp-completion-enable-additional-text-edit t
         lsp-completion-show-detail t
         lsp-completion-show-kind t
-        lsp-enable-symbol-highlighting nil ; Stops idle symbol highlights
+        lsp-enable-symbol-highlighting t ; Enables automatic function/symbol occurrences highlighting
         lsp-completion-no-auto-import nil
         lsp-response-timeout 10)
 
@@ -205,7 +205,7 @@ install if missing on Windows or Unix."
            (cmd-args `(,ng-cmd "--stdio")))
       (dolist (loc probes)
         (setq cmd-args (append cmd-args `("--tsProbeLocations" ,loc
-                                         "--ngProbeLocations" ,loc))))
+                                          "--ngProbeLocations" ,loc))))
       (setq lsp-clients-angular-language-server-command cmd-args)))
 
   (advice-add 'lsp-angular--create-connection :before #'my/lsp-angular-command-advice)
@@ -275,7 +275,7 @@ install if missing on Windows or Unix."
   (setq completion-styles '(orderless flex basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion))
-                                       (lsp-capf (styles basic orderless)))))
+                                        (lsp-capf (styles basic orderless)))))
 (marginalia-mode 1)
 
 ;; Consult (Telescope-like live searching & navigation)
@@ -313,8 +313,8 @@ install if missing on Windows or Unix."
   (define-key mijn-venster-map (kbd "l") 'windmove-right)
 
   ;; B. Vensters splitsen
-  (define-key mijn-venster-map (kbd "v") 'split-window-right)  ; 'v' van Verticaal
-  (define-key mijn-venster-map (kbd "s") 'split-window-below)  ; 's' van Splitsen/Horizontaal
+  (define-key mijn-venster-map (kbd "v") 'split-window-right) ; 'v' van Verticaal
+  (define-key mijn-venster-map (kbd "s") 'split-window-below) ; 's' van Splitsen/Horizontaal
 
   ;; C. Vensters sluiten
   (define-key mijn-venster-map (kbd "x") 'delete-window)        ; 'x' sluit huidige venster
@@ -323,7 +323,7 @@ install if missing on Windows or Unix."
   ;; D. Projectbeheer (Voor Angular & .NET isolatie)
   (define-key mijn-venster-map (kbd "p p") 'project-switch-project) ; Wissel tussen Angular en .NET
   (define-key mijn-venster-map (kbd "p f") 'project-find-file)       ; Zoek bestand binnen huidig project
-  (define-key mijn-venster-map (kbd "p s") 'project-shell))         ; Open terminal voor dit specifieke project
+  (define-key mijn-venster-map (kbd "p s") 'project-shell))          ; Open terminal voor dit specifieke project
 
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
 (use-package dape
