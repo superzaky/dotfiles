@@ -28,6 +28,9 @@
 ;;(setq display-line-numbers-type 'relative)
 (setq ring-bell-function 'ignore)
 
+;; Overwrite active selection when typing or pasting (C-y after C-x h)
+(delete-selection-mode 1)
+
 ;; Load Modus Vivendi (Built-in Accessible Dark Theme)
 (load-theme 'modus-vivendi t)
 
@@ -299,13 +302,13 @@ install if missing on Windows or Unix."
   (setq wgrep-auto-save-buffer t))
 
 ;; --- 7. WINDOW, PROJECT & FILE MANAGEMENT ---
-;; (use-package dired
-;;   :ensure nil
-;;   :config
-;;   (require 'dired-x)
-;;   ;; Prevent spawning a new buffer for every visited directory
-;;   (setq dired-kill-when-opening-new-dired-buffer t)
-;;   :bind (("C-x C-j" . dired-jump)))
+(use-package dired
+  :ensure nil
+  :config
+  (require 'dired-x)
+  ;; Prevent spawning a new buffer for every visited directory
+  (setq dired-kill-when-opening-new-dired-buffer t)
+  :bind (("C-x C-j" . dired-jump)))
 
 (use-package windmove
   :ensure nil
