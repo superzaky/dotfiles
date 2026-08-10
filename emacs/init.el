@@ -298,7 +298,15 @@ install if missing on Windows or Unix."
   :config
   (setq wgrep-auto-save-buffer t))
 
-;; --- 7. WINDOW & PROJECT MANAGEMENT ---
+;; --- 7. WINDOW, PROJECT & FILE MANAGEMENT ---
+;; (use-package dired
+;;   :ensure nil
+;;   :config
+;;   (require 'dired-x)
+;;   ;; Prevent spawning a new buffer for every visited directory
+;;   (setq dired-kill-when-opening-new-dired-buffer t)
+;;   :bind (("C-x C-j" . dired-jump)))
+
 (use-package windmove
   :ensure nil
   :config
@@ -324,6 +332,21 @@ install if missing on Windows or Unix."
   (define-key mijn-venster-map (kbd "p p") 'project-switch-project) ; Wissel tussen Angular en .NET
   (define-key mijn-venster-map (kbd "p f") 'project-find-file)       ; Zoek bestand binnen huidig project
   (define-key mijn-venster-map (kbd "p s") 'project-shell))          ; Open terminal voor dit specifieke project
+
+;; Copy current filename / path helper
+(defun my/copy-current-file-name (&optional arg)
+  "Copy the filename of the current buffer to the clipboard/kill-ring.
+With prefix argument ARG (C-u C-c f c), copy the full file path instead."
+  (interactive "P")
+  (if-let ((path (buffer-file-name)))
+      (let ((result (if arg path (file-name-nondirectory path))))
+        (kill-new result)
+        (message "Copied %s to clipboard: %s"
+                 (if arg "full path" "filename")
+                 result))
+    (user-error "Current buffer is not visiting a file")))
+
+(global-set-key (kbd "C-c f c") #'my/copy-current-file-name)
 
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
 (use-package dape
