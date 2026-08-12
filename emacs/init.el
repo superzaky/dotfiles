@@ -351,6 +351,18 @@ With prefix argument ARG (C-u C-c f c), copy the full file path instead."
 
 (global-set-key (kbd "C-c f c") #'my/copy-current-file-name)
 
+;; Copy line or region
+(defun copy-line-or-region ()
+  "Copy current line if no region is active."
+  (interactive)
+  (if (use-region-p)
+      (kill-ring-save (region-beginning) (region-end))
+    (kill-ring-save (line-beginning-position) (line-beginning-position 2))
+    (message "Copied line")))
+
+(global-set-key (kbd "M-w") 'copy-line-or-region)
+
+
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
 (use-package dape
   :ensure nil
