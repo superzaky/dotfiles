@@ -59,3 +59,7 @@ For the IDE engine (eglot) to underline errors and know your method names, it re
 `pipx install pyright`
 
 `pyright --version`
+
+
+## FYI
+mimeapps.list is used to configure, for example, Zathura as the standard for opening PDF files.

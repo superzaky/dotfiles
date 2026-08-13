@@ -1,0 +1,12 @@
+set recolor "true"
+set recolor-darkedit "true"
+
+# Donkere achtergrond en lichte tekst
+set default-bg "#1e1e1e"
+set default-fg "#ffffff"
+set recolor-lightcolor "#1e1e1e"
+set recolor-darkcolor "#ffffff"
+
+# Statusbalk aanpassingen
+set statusbar-bg "#2d2d2d"
+set statusbar-fg "#aaaaaa"
