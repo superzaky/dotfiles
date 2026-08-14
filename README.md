@@ -63,3 +63,22 @@ For the IDE engine (eglot) to underline errors and know your method names, it re
 
 ## FYI
 mimeapps.list is used to configure, for example, Zathura as the standard for opening PDF files.
+
+Regarding Angular LSP, the following tools are needed:
+`[zaky@debian ~]$ npm list -g --depth=0 ` 
+
+`/home/zaky/.nvm/versions/node/v24.19.0/lib`
+
+`├── @angular/language-server@22.1.2    ` 
+
+`├── @angular/language-service@22.1.2   ` 
+
+`├── corepack@0.35.0                    ` 
+
+`├── npm@11.17.0                        ` 
+
+`├── typescript-language-server@5.3.0   ` 
+
+`├── typescript@5.7.3                   ` 
+
+`└── vscode-langservers-extracted@4.10.0` 

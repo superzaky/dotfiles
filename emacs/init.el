@@ -313,15 +313,16 @@ install if missing on Windows or Unix."
 (use-package windmove
   :ensure nil
   :config
+  (windmove-default-keybindings 'meta)
   ;; Maak een nieuwe keymap aan voor alle acties onder M-m
   (define-prefix-command 'mijn-venster-map)
   (global-set-key (kbd "M-m") 'mijn-venster-map)
 
   ;; A. Navigeren tussen vensters (Windmove hjkl)
-  (define-key mijn-venster-map (kbd "h") 'windmove-left)
-  (define-key mijn-venster-map (kbd "j") 'windmove-down)
-  (define-key mijn-venster-map (kbd "k") 'windmove-up)
-  (define-key mijn-venster-map (kbd "l") 'windmove-right)
+  ;; (define-key mijn-venster-map (kbd "h") 'windmove-left)
+  ;; (define-key mijn-venster-map (kbd "j") 'windmove-down)
+  ;; (define-key mijn-venster-map (kbd "k") 'windmove-up)
+  ;; (define-key mijn-venster-map (kbd "l") 'windmove-right)
 
   ;; B. Vensters splitsen
   (define-key mijn-venster-map (kbd "v") 'split-window-right) ; 'v' van Verticaal
