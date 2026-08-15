@@ -14,7 +14,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell smartparens emmet-mode))
+(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell smartparens emmet-mode dashboard))
   (unless (package-installed-p pkg)
     (condition-case nil
         (package-install pkg)
@@ -430,6 +430,53 @@ With prefix argument ARG (C-u C-c f c), copy the full file path instead."
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 ;; Force magit-ediff-dwim ('e') to prefer 2-way side-by-side diffs over 3-way diffs
 (setq magit-ediff-dwim-show-on-hunks t)
+
+;; --- 12. WELCOME SCREEN / DASHBOARD CONFIGURATION ---
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+
+  ;; Display Header Banner & Title
+  (setq dashboard-banner-logo-title "Welcome to Emacs")
+  (setq dashboard-startup-banner 'official)
+
+  ;; Configure recent files and projects limits
+  (setq dashboard-items '((recents  . 9)
+                          (projects . 9)))
+
+  ;; Formatting and shortcuts
+  (setq dashboard-center-content t)
+  (setq dashboard-show-shortcuts t)
+
+  (setq dashboard-custom-header
+        " [r] Reload Last Session   |   [e] Open init.el ")
+
+  ;; Helper functions for custom actions
+  (defun my/dashboard-reload-session ()
+    "Restore the previous desktop session."
+    (interactive)
+    (if (fboundp 'desktop-read)
+        (desktop-read)
+      (message "Desktop mode is not enabled.")))
+
+  (defun my/dashboard-open-init-el ()
+    "Open user init.el file directly."
+    (interactive)
+    (find-file user-init-file))
+
+  ;; Keybindings inside dashboard-mode
+  (with-eval-after-load 'dashboard
+    (define-key dashboard-mode-map (kbd "r") #'my/dashboard-reload-session)
+    (define-key dashboard-mode-map (kbd "e") #'my/dashboard-open-init-el))
+
+  ;; Feed recent files & enable session tracking
+  (recentf-mode 1)
+  (setq recentf-max-saved-items 25))
+
+;; Save session automatically on exit
+(desktop-save-mode 1)
+(setq desktop-restore-eager 5)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
