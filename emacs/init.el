@@ -55,12 +55,19 @@
 ;; is already correctly indented. This replicates that behavior, and adds
 ;; Shift-TAB (<backtab>) as the matching "un-indent one level" companion.
 (defun my/tab-or-indent-more ()
-  "Indent line to the correct position; if already there, indent one level further."
+  "Indent line to the correct position; if already there (or called
+repeatedly in a row), keep indenting one level further each time,
+matching VS Code's TAB behavior."
   (interactive)
-  (let ((prev-indent (current-indentation)))
-    (indent-for-tab-command)
-    (when (= prev-indent (current-indentation))
-      (indent-line-to (+ prev-indent tab-width)))))
+  (if (memq last-command '(my/tab-or-indent-more my/emmet-tab-or-indent))
+      ;; Repeated TAB press: skip smart-indent recalculation (which would
+      ;; snap the line back to its "correct" position) and just add another
+      ;; indent level.
+      (indent-line-to (+ (current-indentation) tab-width))
+    (let ((prev-indent (current-indentation)))
+      (indent-for-tab-command)
+      (when (= prev-indent (current-indentation))
+        (indent-line-to (+ prev-indent tab-width))))))
 
 (defun my/backtab-unindent ()
   "Un-indent the current line by one indent step."
