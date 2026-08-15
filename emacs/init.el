@@ -31,6 +31,45 @@
 ;; Overwrite active selection when typing or pasting (C-y after C-x h)
 (delete-selection-mode 1)
 
+;; --- 2b. INDENTATION: SPACES INSTEAD OF TABS ---
+;; Use spaces instead of literal tab characters for indentation, globally.
+;; (indent-tabs-mode is buffer-local in most programming modes, so this
+;; must be setq-default, not setq, to apply everywhere.)
+(setq-default indent-tabs-mode nil)
+
+;; Set consistent 2-space indent widths per language (matches typical
+;; Prettier/Angular/ESLint conventions)
+(setq-default typescript-ts-mode-indent-offset 2
+              js-indent-level 2
+              css-indent-offset 2
+              sgml-basic-offset 2      ; used by html-mode/mhtml-mode
+              web-mode-markup-indent-offset 2)
+
+;; Haskell conventionally uses its own indentation style
+(setq-default haskell-indent-offset 2)
+
+;; --- 2c. VS CODE-STYLE TAB / SHIFT-TAB ---
+;; By default, indent-for-tab-command only moves a line to its single
+;; "correct" position and then stops doing anything further. VS Code instead
+;; lets you keep pressing TAB to indent one level further even once the line
+;; is already correctly indented. This replicates that behavior, and adds
+;; Shift-TAB (<backtab>) as the matching "un-indent one level" companion.
+(defun my/tab-or-indent-more ()
+  "Indent line to the correct position; if already there, indent one level further."
+  (interactive)
+  (let ((prev-indent (current-indentation)))
+    (indent-for-tab-command)
+    (when (= prev-indent (current-indentation))
+      (indent-line-to (+ prev-indent tab-width)))))
+
+(defun my/backtab-unindent ()
+  "Un-indent the current line by one indent step."
+  (interactive)
+  (indent-line-to (max 0 (- (current-indentation) tab-width))))
+
+(global-set-key (kbd "TAB") #'my/tab-or-indent-more)
+(global-set-key (kbd "<backtab>") #'my/backtab-unindent)
+
 ;; Load Modus Vivendi (Built-in Accessible Dark Theme)
 (load-theme 'modus-vivendi t)
 
@@ -50,14 +89,15 @@
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.html\\'" . html-ts-mode))
 
+;; Updated to master branches to prevent ABI mismatches with system libtree-sitter (0.22+)
 (setq treesit-language-source-alist
-      '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src")
-        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src")
-        (python "https://github.com/tree-sitter/tree-sitter-python" "v0.20.4")
-        (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp" "v0.20.0")
-        (json "https://github.com/tree-sitter/tree-sitter-json" "v0.20.2")
-        (css "https://github.com/tree-sitter/tree-sitter-css" "v0.20.0")
-        (html "https://github.com/tree-sitter/tree-sitter-html" "v0.20.1")))
+      '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+        (python "https://github.com/tree-sitter/tree-sitter-python" "master")
+        (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp" "master")
+        (json "https://github.com/tree-sitter/tree-sitter-json" "master")
+        (css "https://github.com/tree-sitter/tree-sitter-css" "master")
+        (html "https://github.com/tree-sitter/tree-sitter-html" "master")))
 
 (dolist (grammar treesit-language-source-alist)
   (let ((lang (car grammar)))
@@ -224,9 +264,25 @@ install if missing on Windows or Unix."
   :config
   (setq emmet-move-cursor-after-expanding t
         emmet-self-closing-tag-style "html")
-  ;; Bind TAB explicitly to expand Emmet snippets
-  (define-key emmet-mode-keymap (kbd "TAB") #'emmet-expand-line)
-  (define-key emmet-mode-keymap (kbd "<tab>") #'emmet-expand-line))
+
+  ;; FIX: TAB should only expand an Emmet abbreviation when one is actually
+  ;; present at point. Otherwise it must fall back to normal indentation,
+  ;; or you lose the ability to indent entirely in html/tsx buffers.
+  ;; NOTE: falls back to my/tab-or-indent-more (defined in section 2c) so
+  ;; that html/web buffers get the same "indent further if already correct"
+  ;; behavior as everywhere else, instead of doing nothing on already-correct
+  ;; lines.
+  (defun my/emmet-tab-or-indent ()
+    "Expand Emmet abbreviation at point if there is one, otherwise indent."
+    (interactive)
+    (if (and (bound-and-true-p emmet-mode)
+             (emmet-expr-on-line))
+        (emmet-expand-line nil)
+      (my/tab-or-indent-more)))
+
+  ;; Bind TAB to the smart fallback instead of unconditionally expanding
+  (define-key emmet-mode-keymap (kbd "TAB") #'my/emmet-tab-or-indent)
+  (define-key emmet-mode-keymap (kbd "<tab>") #'my/emmet-tab-or-indent))
 
 (use-package smartparens
   :hook ((html-mode . smartparens-mode)
@@ -255,8 +311,19 @@ install if missing on Windows or Unix."
         corfu-quit-no-match 'separator
         corfu-quit-at-boundary nil)
 
-  (define-key corfu-map (kbd "TAB") #'corfu-complete)
-  (define-key corfu-map (kbd "<tab>") #'corfu-complete))
+  ;; FIX: Corfu does NOT bind TAB by default, and for good reason -- while the
+  ;; completion popup is visible, corfu-map takes priority over every other
+  ;; keymap (including the major mode's indent binding). Because
+  ;; global-corfu-mode is active everywhere and the popup pops up almost
+  ;; instantly (corfu-auto-delay 0.05, corfu-auto-prefix 1), binding TAB here
+  ;; hijacks indentation in EVERY buffer, in every language, any time the
+  ;; popup happens to be showing. That's why it was breaking indentation in
+  ;; html, ts, and haskell files alike.
+  ;;
+  ;; Use a different key to accept/insert the selected candidate, and leave
+  ;; TAB alone so it always falls through to indent-for-tab-command.
+  (define-key corfu-map (kbd "C-<tab>") #'corfu-insert)
+  (define-key corfu-map (kbd "RET") #'corfu-insert))
 
 (use-package cape
   :init
@@ -362,7 +429,6 @@ With prefix argument ARG (C-u C-c f c), copy the full file path instead."
     (message "Copied line")))
 
 (global-set-key (kbd "M-w") 'copy-line-or-region)
-
 
 ;; --- 8. DEBUGGER CONFIGURATION (Dape) ---
 (use-package dape
