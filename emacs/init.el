@@ -261,6 +261,65 @@ install if missing on Windows or Unix."
   (advice-add 'lsp-angular--create-connection :before #'my/lsp-angular-command-advice)
   (setq lsp-angular-suggest-use-minimal-type-imports t))
 
+;; --- HTML MATCHING TAG HIGHLIGHT ---
+;; When point is inside an opening or closing HTML tag (e.g. <div> or
+;; </div>), highlight the tag name in BOTH the opening and closing tag of
+;; that element. Works for any element, not just div, since it walks the
+;; tree-sitter parse tree rather than matching specific tag names.
+(defface my/matching-tag-face
+  '((t :inherit highlight :weight bold))
+  "Face used to highlight the matching opening/closing HTML tag name.")
+
+(defvar-local my/tag-match-overlays nil)
+
+(defun my/tag-match--clear ()
+  (mapc #'delete-overlay my/tag-match-overlays)
+  (setq my/tag-match-overlays nil))
+
+(defun my/tag-match--node-by-type (node type)
+  "Return the first child of NODE whose tree-sitter type is TYPE."
+  (and node
+       (seq-find (lambda (c) (equal (treesit-node-type c) type))
+                 (treesit-node-children node))))
+
+(defun my/tag-match--highlight-node (node)
+  (when node
+    (let ((ov (make-overlay (treesit-node-start node) (treesit-node-end node))))
+      (overlay-put ov 'face 'my/matching-tag-face)
+      (push ov my/tag-match-overlays))))
+
+(defun my/highlight-matching-tag ()
+  "Highlight the tag-name pair for the HTML element point is currently
+inside a start_tag or end_tag of."
+  (my/tag-match--clear)
+  (when (and (derived-mode-p 'html-ts-mode)
+             (treesit-parser-list))
+    (let* ((node (treesit-node-at (point)))
+           (tag-node (and node
+                          (treesit-parent-until
+                           node
+                           (lambda (n) (member (treesit-node-type n)
+                                                '("start_tag" "end_tag")))
+                           t)))
+           (element (and tag-node (treesit-node-parent tag-node))))
+      (when (and element (equal (treesit-node-type element) "element"))
+        (let ((start-tag (my/tag-match--node-by-type element "start_tag"))
+              (end-tag (my/tag-match--node-by-type element "end_tag")))
+          (my/tag-match--highlight-node
+           (my/tag-match--node-by-type start-tag "tag_name"))
+          (my/tag-match--highlight-node
+           (my/tag-match--node-by-type end-tag "tag_name")))))))
+
+(define-minor-mode my/highlight-matching-tag-mode
+  "Highlight the matching opening/closing HTML tag pair around point."
+  :lighter nil
+  (if my/highlight-matching-tag-mode
+      (add-hook 'post-command-hook #'my/highlight-matching-tag nil t)
+    (remove-hook 'post-command-hook #'my/highlight-matching-tag t)
+    (my/tag-match--clear)))
+
+(add-hook 'html-ts-mode-hook #'my/highlight-matching-tag-mode)
+
 ;; --- EMMET & AUTOMATIC HTML TAG EXPANSION ---
 (use-package emmet-mode
   :hook ((html-mode . emmet-mode)
