@@ -14,7 +14,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell smartparens emmet-mode dashboard))
+(dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell smartparens emmet-mode dashboard diff-hl))
   (unless (package-installed-p pkg)
     (condition-case nil
         (package-install pkg)
@@ -42,7 +42,7 @@
 (setq-default typescript-ts-mode-indent-offset 2
               js-indent-level 2
               css-indent-offset 2
-              sgml-basic-offset 2      ; used by html-mode/mhtml-mode
+              sgml-basic-offset 2       ; used by html-mode/mhtml-mode
               web-mode-markup-indent-offset 2)
 
 ;; Haskell conventionally uses its own indentation style
@@ -76,6 +76,21 @@ matching VS Code's TAB behavior."
 
 (global-set-key (kbd "TAB") #'my/tab-or-indent-more)
 (global-set-key (kbd "<backtab>") #'my/backtab-unindent)
+
+;; --- 2d. VS CODE-STYLE GIT GUTTER INDICATORS ---
+(use-package diff-hl
+  :ensure t
+  :init
+  ;; Enable diff indicators globally across all file buffers
+  (global-diff-hl-mode 1)
+  :config
+  ;; Live-update fringe indicators as you type (before saving)
+  (diff-hl-flydiff-mode 1)
+  
+  ;; Refresh diff indicators automatically when working inside Magit
+  (with-eval-after-load 'magit
+    (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
+    (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)))
 
 ;; Load Modus Vivendi (Built-in Accessible Dark Theme)
 (load-theme 'modus-vivendi t)
@@ -299,7 +314,7 @@ inside a start_tag or end_tag of."
                           (treesit-parent-until
                            node
                            (lambda (n) (member (treesit-node-type n)
-                                                '("start_tag" "end_tag")))
+                                               '("start_tag" "end_tag")))
                            t)))
            (element (and tag-node (treesit-node-parent tag-node))))
       (when (and element (equal (treesit-node-type element) "element"))
