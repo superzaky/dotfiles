@@ -28,6 +28,11 @@
 ;;(setq display-line-numbers-type 'relative)
 (setq ring-bell-function 'ignore)
 
+;; Lock cursor to vertical center (Typewriter Scrolling)
+(setq scroll-preserve-screen-position t
+      scroll-conservatively 0
+      scroll-margin 9999)
+
 ;; Overwrite active selection when typing or pasting (C-y after C-x h)
 (delete-selection-mode 1)
 
