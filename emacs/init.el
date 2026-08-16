@@ -86,7 +86,7 @@ matching VS Code's TAB behavior."
   :config
   ;; Live-update fringe indicators as you type (before saving)
   (diff-hl-flydiff-mode 1)
-  
+
   ;; Refresh diff indicators automatically when working inside Magit
   (with-eval-after-load 'magit
     (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
@@ -434,13 +434,13 @@ inside a start_tag or end_tag of."
   :bind (;; Search content in project (like Telescope live_grep)
          ("C-c f g" . consult-ripgrep)
          ("C-c s r" . consult-ripgrep)
-         
+
          ;; Search content in current buffer (like Telescope current_buffer_fuzzy_find)
          ("C-s"     . consult-line)
-         
+
          ;; Find files in project (like Telescope find_files)
          ("C-c f f" . consult-fd)
-         
+
          ;; Switch buffers with preview (like Telescope buffers)
          ("C-x b"   . consult-buffer)))
 
@@ -570,7 +570,8 @@ With prefix argument ARG (C-u C-c f c), copy the full file path instead."
             (setq display-line-numbers-type t)
             (display-line-numbers-mode 1)))
 
-;; --- 10b. MAGIT: VISIT FILE IN OTHER WINDOW & WORD-LEVEL DIFF HIGHLIGHTING ---
+;; --- 10b. MAGIT: VISIT FILE IN OTHER WINDOW, WORD-LEVEL DIFF HIGHLIGHTING
+;;          & SYNTAX-HIGHLIGHTED HUNKS ---
 (with-eval-after-load 'magit
   ;; 'o' is already taken by the Submodule prefix, so use M-RET instead to
   ;; visit the file at point (from status, diff, or log views) in another
@@ -578,7 +579,24 @@ With prefix argument ARG (C-u C-c f c), copy the full file path instead."
   (define-key magit-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)
 
   ;; Enable word-level / intra-line diff highlights for all visible hunks
-  (setq magit-diff-refine-hunk 'all))
+  (setq magit-diff-refine-hunk 'all)
+
+  ;; VS Code-style syntax highlighting INSIDE diff hunks, on top of the
+  ;; red/green added-removed background. This fontifies each hunk (using the
+  ;; file's own major mode) once it becomes the current section, and keeps
+  ;; that fontification until the buffer is refreshed.
+  ;;
+  ;; NOTE: this is still considered experimental upstream, because the
+  ;; fontification happens synchronously and can introduce a noticeable
+  ;; delay on very large hunks/diffs. If it feels sluggish on big files,
+  ;; just set magit-diff-fontify-hunk back to nil (or switch to the
+  ;; magit-delta package, which renders diffs via the external `delta`
+  ;; tool instead).
+
+  ;; If it lags on big diffs, just flip magit-diff-fontify-hunk back to nil like so:   (setq magit-diff-fontify-hunk nil)
+  (setq magit-diff-fontify-hunk t)
+  (setq magit-diff-specify-hunk-foreground t)
+  (setq magit-diff-use-indicator-faces t))
 
 ;; --- 11. EDIFF / MAGIT SIDE-BY-SIDE DIFF CONFIGURATION ---
 ;; Force Ediff to split windows side-by-side horizontally instead of stacked vertically
