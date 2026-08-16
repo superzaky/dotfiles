@@ -555,12 +555,15 @@ With prefix argument ARG (C-u C-c f c), copy the full file path instead."
             (setq display-line-numbers-type t)
             (display-line-numbers-mode 1)))
 
-;; --- 10b. MAGIT: VISIT FILE IN OTHER WINDOW ---
-;; 'o' is already taken by the Submodule prefix, so use M-RET instead to
-;; visit the file at point (from status, diff, or log views) in another
-;; window, keeping the Magit buffer visible.
+;; --- 10b. MAGIT: VISIT FILE IN OTHER WINDOW & WORD-LEVEL DIFF HIGHLIGHTING ---
 (with-eval-after-load 'magit
-  (define-key magit-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window))
+  ;; 'o' is already taken by the Submodule prefix, so use M-RET instead to
+  ;; visit the file at point (from status, diff, or log views) in another
+  ;; window, keeping the Magit buffer visible.
+  (define-key magit-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)
+
+  ;; Enable word-level / intra-line diff highlights for all visible hunks
+  (setq magit-diff-refine-hunk 'all))
 
 ;; --- 11. EDIFF / MAGIT SIDE-BY-SIDE DIFF CONFIGURATION ---
 ;; Force Ediff to split windows side-by-side horizontally instead of stacked vertically
