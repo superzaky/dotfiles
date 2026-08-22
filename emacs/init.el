@@ -158,11 +158,17 @@ matching VS Code's TAB behavior."
           mhtml-mode
           css-mode
           css-ts-mode
-          scss-mode) . lsp-deferred)
+          scss-mode
+          LaTeX-mode
+          latex-mode) . lsp-deferred)
   :commands (lsp lsp-deferred)
   :config
   ;; Disable html-ls so angular-ls takes over .html files in Angular projects
   (setq lsp-disabled-clients '(html-ls))
+
+  ;; Register LaTeX language identification for LSP (TexLab backend)
+  (add-to-list 'lsp-language-id-configuration '(LaTeX-mode . "latex"))
+  (add-to-list 'lsp-language-id-configuration '(latex-mode . "latex"))
 
   ;; Cross-platform executable path fixes for Windows (.cmd / .bat resolving)
   (when (eq system-type 'windows-nt)
@@ -280,6 +286,35 @@ install if missing on Windows or Unix."
 
   (advice-add 'lsp-angular--create-connection :before #'my/lsp-angular-command-advice)
   (setq lsp-angular-suggest-use-minimal-type-imports t))
+
+;; --- AUCTEX & LATEX CONFIGURATION ---
+(use-package pdf-tools
+  :ensure t
+  :config
+  (pdf-tools-install)
+  ;; Automatically refresh the PDF buffer after LaTeX recompiles
+  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer))
+
+(use-package tex
+  :ensure auctex
+  :config
+  (setq TeX-PDF-mode t)
+  (setq TeX-source-correlate-mode t)
+  (setq TeX-source-correlate-method 'synctex)
+  (setq TeX-source-correlate-start-server t)
+  (setq TeX-parse-self t)
+  (setq TeX-auto-save t)
+
+  ;; Direct LaTeX output to PDF Tools inside Emacs
+  (setq TeX-view-program-selection '((output-pdf "PDF Tools"))))
+
+(defun my/latex-keybindings ()
+  "Custom keybindings for LaTeX editing buffers."
+  (local-set-key (kbd "C-c C-v") #'TeX-view))
+
+(add-hook 'LaTeX-mode-hook #'my/latex-keybindings)
+(add-hook 'latex-mode-hook #'my/latex-keybindings)
+(add-hook 'plain-TeX-mode-hook #'my/latex-keybindings)
 
 ;; --- HTML MATCHING TAG HIGHLIGHT ---
 ;; When point is inside an opening or closing HTML tag (e.g. <div> or

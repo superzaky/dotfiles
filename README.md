@@ -60,6 +60,11 @@ For the IDE engine (eglot) to underline errors and know your method names, it re
 
 `pyright --version`
 
+## Latex
+To view the compiled latex file in pdf-tools, you need to install the following tools that pdf-tools require:
+`sudo apt install libpoppler-glib-dev libpoppler-private-dev libpng-dev pkg-config gcc make`
+
+The above command has been used in Debian 13 (trixie)
 
 ## FYI
 mimeapps.list is used to configure, for example, Zathura as the standard for opening PDF files.
