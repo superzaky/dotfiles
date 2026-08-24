@@ -104,7 +104,7 @@ matching VS Code's TAB behavior."
 (setq major-mode-remap-alist
       '((typescript-mode . typescript-ts-mode)
         (tsx-mode        . tsx-ts-mode)
-        (js-mode         . js-ts-mode)
+        (js-mode          . js-ts-mode)
         (javascript-mode . js-ts-mode)
         (python-mode     . python-ts-mode)
         (csharp-mode     . csharp-ts-mode)
@@ -288,25 +288,38 @@ install if missing on Windows or Unix."
   (setq lsp-angular-suggest-use-minimal-type-imports t))
 
 ;; --- AUCTEX & LATEX CONFIGURATION ---
-(use-package pdf-tools
-  :ensure t
-  :config
-  (pdf-tools-install)
-  ;; Automatically refresh the PDF buffer after LaTeX recompiles
-  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer))
+(if (eq system-type 'windows-nt)
+    ;; Windows configuration: Use built-in DocView mode
+    (use-package tex
+      :ensure auctex
+      :config
+      (setq TeX-PDF-mode t)
+      (setq TeX-source-correlate-mode t)
+      (setq TeX-source-correlate-method 'synctex)
+      (setq TeX-parse-self t)
+      (setq TeX-auto-save t)
+      (setq TeX-view-program-selection '((output-pdf "DocView"))))
 
-(use-package tex
-  :ensure auctex
-  :config
-  (setq TeX-PDF-mode t)
-  (setq TeX-source-correlate-mode t)
-  (setq TeX-source-correlate-method 'synctex)
-  (setq TeX-source-correlate-start-server t)
-  (setq TeX-parse-self t)
-  (setq TeX-auto-save t)
+  ;; Linux/Debian configuration: Use pdf-tools
+  (use-package pdf-tools
+    :ensure t
+    :config
+    (pdf-tools-install)
+  ;; Automatically refresh the PDF buffer after LaTeX recompiles
+    (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer))
+
+  (use-package tex
+    :ensure auctex
+    :config
+    (setq TeX-PDF-mode t)
+    (setq TeX-source-correlate-mode t)
+    (setq TeX-source-correlate-method 'synctex)
+    (setq TeX-source-correlate-start-server t)
+    (setq TeX-parse-self t)
+    (setq TeX-auto-save t)
 
   ;; Direct LaTeX output to PDF Tools inside Emacs
-  (setq TeX-view-program-selection '((output-pdf "PDF Tools"))))
+    (setq TeX-view-program-selection '((output-pdf "PDF Tools")))))
 
 (defun my/latex-keybindings ()
   "Custom keybindings for LaTeX editing buffers."
