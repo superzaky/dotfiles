@@ -1,4 +1,4 @@
-;;; init-editing.el --- HTML, Emmet & Smartparens Config -*- lexical-binding: t; -*-
+;;; init-editing.el --- HTML, Emmet, Smartparens & File Backups -*- lexical-binding: t; -*-
 
 ;; --- HTML MATCHING TAG HIGHLIGHT ---
 (defface my/matching-tag-face
@@ -88,5 +88,26 @@
     (sp-local-pair "<" ">" :actions '(insert wrap))
     (sp-local-pair "{{" "}}" :post-handlers '("| "))
     (sp-local-pair "{" "}" :unless '(sp-in-string-p))))
+
+
+;; Redirect backup (file~) and auto-save (#file#) files to central directories
+
+(let ((backup-dir (expand-file-name "backups/" user-emacs-directory))
+      (auto-save-dir (expand-file-name "auto-saves/" user-emacs-directory)))
+  
+  ;; Create directories automatically if they don't exist
+  (unless (file-exists-p backup-dir)
+    (make-directory backup-dir t))
+  (unless (file-exists-p auto-save-dir)
+    (make-directory auto-save-dir t))
+
+  ;; Configure backup files (file~)
+  (setq backup-directory-alist `(("." . ,backup-dir))
+        make-backup-files t
+        vc-make-backup-files t
+        backup-by-copying t)
+
+  ;; Configure auto-save files (#file#)
+  (setq auto-save-file-name-transforms `((".*" ,auto-save-dir t))))
 
 (provide 'init-editing)
