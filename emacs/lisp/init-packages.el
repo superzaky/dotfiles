@@ -13,7 +13,7 @@
 
 (dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex
                        scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell
-                       smartparens emmet-mode dashboard diff-hl))
+                       smartparens emmet-mode dashboard diff-hl org-roam))
   (unless (package-installed-p pkg)
     (condition-case nil
         (package-install pkg)

@@ -1,4 +1,4 @@
-;;; init-org.el --- Org Mode Configuration -*- lexical-binding: t; -*-
+;;; init-org.el --- Org Mode & Org-Roam Configuration -*- lexical-binding: t; -*-
 
 (use-package org
   :ensure nil ; Built-in to Emacs, do not download from ELPA/MELPA
@@ -19,4 +19,15 @@
   (setq org-log-done 'time
         org-hide-emphasis-markers t
         org-ellipsis " ▾"))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/org-roam")) ; Path to your note collection
+  :bind (("C-c n f" . org-roam-node-find)   ; Find or create a note
+         ("C-c n i" . org-roam-node-insert) ; Insert a link to another note at point
+         ("C-c n l" . org-roam-buffer-toggle)) ; Toggle sidebar showing backlinks
+  :config
+  (org-roam-db-autosync-mode))
+
 (provide 'init-org)
