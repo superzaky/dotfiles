@@ -13,6 +13,7 @@
 (require 'init-tools)
 (require 'init-dashboard)
 (require 'init-org)
+(require 'init-dap)
 
 ;; Custom system settings (managed automatically by Emacs)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
