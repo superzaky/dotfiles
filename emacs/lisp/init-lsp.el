@@ -82,6 +82,14 @@
     (setq-local completion-styles '(orderless flex basic)))
   (add-hook 'lsp-mode-hook #'my/lsp-mode-setup-completion))
 
+;; that runs before you open your first .cs file this session:
+(with-eval-after-load 'csharp-mode
+  (defun csharp-ts-mode--test-typeof-expression ()
+    "Return non-nil only if the exact (typeof_expression (identifier))
+pattern csharp-ts-mode uses is structurally valid for the installed
+grammar — not just that the node type exists (upstream bug workaround)."
+    (treesit-query-valid-p 'c-sharp "(typeof_expression (identifier))")))
+
 ;; TSServer Shim Workaround
 (defun my/lsp-ensure-tsserver-shim ()
   (let* ((ts-dir (expand-file-name "npm/typescript" lsp-server-install-dir))
