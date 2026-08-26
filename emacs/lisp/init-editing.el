@@ -110,4 +110,7 @@
   ;; Configure auto-save files (#file#)
   (setq auto-save-file-name-transforms `((".*" ,auto-save-dir t))))
 
+;; Disable lockfiles (.#filename) to prevent Windows file-unlocking warnings
+(setq create-lockfiles nil)
+
 (provide 'init-editing)

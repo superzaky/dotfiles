@@ -72,4 +72,20 @@
 
 (global-set-key (kbd "M-w") 'copy-line-or-region)
 
+;; --- KILL ALL BUFFERS SHORTCUT ---
+(defun my/kill-all-buffers ()
+  "Kill all user buffers, preserving system buffers and leaving an open *scratch* buffer."
+  (interactive)
+  (when (yes-or-no-p "Are you sure you want to kill all open buffers? ")
+    (dolist (buf (buffer-list))
+      (let ((name (buffer-name buf)))
+        ;; Don't kill internal buffers like *Messages* or hidden buffers starting with space
+        (unless (or (string-prefix-p "*" name)
+                    (string-prefix-p " " name))
+          (kill-buffer buf))))
+    (switch-to-buffer "*scratch*")))
+
+;; Bind to your preferred key combination (e.g., C-c b k)
+(global-set-key (kbd "C-c b k") #'my/kill-all-buffers)
+
 (provide 'init-navigation)
