@@ -121,8 +121,8 @@ grammar — not just that the node type exists (upstream bug workaround)."
   (setq lsp-ui-doc-enable t
         lsp-ui-doc-delay 0.2
         lsp-ui-doc-position 'at-point
-        lsp-ui-sideline-enable nil
-        lsp-ui-sideline-show-diagnostics nil
+        lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-show-hover nil))
 
 (use-package lsp-haskell
