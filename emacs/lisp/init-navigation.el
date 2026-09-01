@@ -23,6 +23,17 @@
   :config
   (setq wgrep-auto-save-buffer t))
 
+;; --- PROJECT MANAGEMENT (WINDOWS FIX) ---
+(use-package project
+  :ensure nil
+  :config
+  ;; Fix Windows "FIND: Parameter format not correct" error on spaces in paths
+  (when (eq system-type 'windows-nt)
+    ;; Override external find.exe with pure Lisp recursive file finder to support spaces in paths
+    (defun my/project-files-in-directory (dir ignores &optional ext)
+      (directory-files-recursively dir "" t))
+    (advice-add 'project--files-in-directory :override #'my/project-files-in-directory)))
+
 ;; --- DIRED ---
 (use-package dired
   :ensure nil
