@@ -3,6 +3,17 @@
 (global-display-line-numbers-mode t)
 (setq ring-bell-function 'ignore)
 
+;; Set JetBrains Mono as default font
+(set-face-attribute 'default nil
+                    :font "JetBrains Mono"
+                    :height 120
+                    :weight 'regular)
+
+;; Ensure fixed-pitch face (used in org tables, code blocks) matches
+(set-face-attribute 'fixed-pitch nil
+                    :font "JetBrains Mono"
+                    :height 120)
+
 ;; Lock cursor to vertical center
 (setq scroll-preserve-screen-position t
       scroll-conservatively 0
