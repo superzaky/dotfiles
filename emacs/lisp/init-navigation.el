@@ -27,6 +27,19 @@
 (use-package project
   :ensure nil
   :config
+  ;; Detect directories as projects if they contain a .project or .dir-locals.el file
+  (defun my/project-try-local (dir)
+    "Recognize DIR as a project root if it contains .project or .dir-locals.el."
+    (let ((root (or (locate-dominating-file dir ".project")
+                    (locate-dominating-file dir ".dir-locals.el"))))
+      (when root
+        (cons 'local root))))
+
+  (cl-defmethod project-root ((project (head local)))
+    (cdr project))
+
+  (add-hook 'project-find-functions #'my/project-try-local -100)
+
   ;; Fix Windows "FIND: Parameter format not correct" error on spaces in paths
   (when (eq system-type 'windows-nt)
     ;; Override external find.exe with pure Lisp recursive file finder to support spaces in paths

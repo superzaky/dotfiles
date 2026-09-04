@@ -2,6 +2,9 @@
 
 (require 'package)
 
+;; Disable signature verification to avoid Windows GPG keyring path errors
+(setq package-check-signature nil)
+
 (setq package-archives '(("gnu"   . "https://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 
@@ -13,7 +16,8 @@
 
 (dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex
                        scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell
-                       smartparens emmet-mode dashboard diff-hl org-roam dap-mode))
+                       smartparens emmet-mode dashboard diff-hl org-roam dap-mode
+                       ef-themes))
   (unless (package-installed-p pkg)
     (condition-case nil
         (package-install pkg)
