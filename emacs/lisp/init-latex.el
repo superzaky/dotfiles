@@ -5,7 +5,7 @@
     (use-package tex
       :ensure auctex
       :config
-      (setq TeX-PDF-mode t)
+      :setq TeX-PDF-mode t
       (setq TeX-source-correlate-mode t)
       (setq TeX-source-correlate-method 'synctex)
       (setq TeX-parse-self t)
@@ -37,5 +37,14 @@
 (add-hook 'LaTeX-mode-hook #'my/latex-keybindings)
 (add-hook 'latex-mode-hook #'my/latex-keybindings)
 (add-hook 'plain-TeX-mode-hook #'my/latex-keybindings)
+
+;; --- AUTO-COMPILE ON SAVE ---
+(defun my/auto-compile-latex ()
+  "Automatically run AUCTeX compilation on save if no build process is running."
+  (when (and (derived-mode-p 'LaTeX-mode 'latex-mode)
+             (not (TeX-process (TeX-master-file))))
+    (TeX-command-sequence t nil)))
+
+(add-hook 'after-save-hook #'my/auto-compile-latex)
 
 (provide 'init-latex)

@@ -94,7 +94,7 @@
 
 (let ((backup-dir (expand-file-name "backups/" user-emacs-directory))
       (auto-save-dir (expand-file-name "auto-saves/" user-emacs-directory)))
-  
+
   ;; Create directories automatically if they don't exist
   (unless (file-exists-p backup-dir)
     (make-directory backup-dir t))
@@ -112,5 +112,11 @@
 
 ;; Disable lockfiles (.#filename) to prevent Windows file-unlocking warnings
 (setq create-lockfiles nil)
+
+;; --- INSTANT AUTO-SAVE (debounced, saves the real file) ---
+;; Saves the actual visited file after `auto-save-visited-interval` (of 300) milliseconds
+;; of idle time, instead of writing to disk on every single keystroke.
+(setq auto-save-visited-interval 0.3)
+(auto-save-visited-mode 1)
 
 (provide 'init-editing)

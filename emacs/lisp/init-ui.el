@@ -40,7 +40,7 @@
 (global-set-key (kbd "M-<f6>") #'modus-themes-load-random)
 
 ;; Load starting theme
-(modus-themes-load-theme 'ef-autumn)
+(modus-themes-load-theme 'ef-trio-dark)
 
 ;; Indentation: Spaces instead of Tabs
 (setq-default indent-tabs-mode nil)
