@@ -8,10 +8,17 @@ emacs/transient/history.el
 emacs/eshell/*
 xmonad/.ghc.environment.x86_64-linux-9.8.4
 emacs/.lsp-session-v1
-emacs/\#*\#
-bspwm/\#*\#
-bspwm/.\#*
+# emacs/\#*\#
+# bspwm/\#*\#
+# bspwm/.\#*
 emacs/init.el~
 tmp.txt~
-.\#*
-\#*.*\#
+# .\#*
+# \#*.*\#
+
+emacs/recentf
+emacs/auto-saves
+emacs/backups
+emacs/org-roam.db
+emacs/.emacs.desktop
+emacs/.emacs.desktop.lock

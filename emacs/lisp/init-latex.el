@@ -1,11 +1,11 @@
-;;; init-latex.el --- AUCTeX & PDF Tools Setup -*- lexical-binding: t; -*-
+;;; init-latex.el --- AUCTeX, PDF Tools & Auto-Compile Setup -*- lexical-binding: t; -*-
 
 (if (eq system-type 'windows-nt)
     ;; Windows: Use built-in DocView mode
     (use-package tex
       :ensure auctex
       :config
-      :setq TeX-PDF-mode t
+      (setq TeX-PDF-mode t)
       (setq TeX-source-correlate-mode t)
       (setq TeX-source-correlate-method 'synctex)
       (setq TeX-parse-self t)
@@ -29,6 +29,11 @@
     (setq TeX-parse-self t)
     (setq TeX-auto-save t)
     (setq TeX-view-program-selection '((output-pdf "PDF Tools")))))
+
+;; Enable Cape LaTeX math/symbol completion in LaTeX buffers
+(add-hook 'LaTeX-mode-hook
+          (lambda ()
+            (add-to-list 'completion-at-point-functions #'cape-tex)))
 
 (defun my/latex-keybindings ()
   "Custom keybindings for LaTeX editing buffers."

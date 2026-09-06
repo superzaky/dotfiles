@@ -83,6 +83,8 @@
          (tsx-ts-mode . smartparens-mode))
   :config
   (require 'smartparens-html)
+  (dolist (mode '(LaTeX-mode latex-mode plain-TeX-mode))
+    (add-to-list 'sp-ignore-modes-list mode))
   (smartparens-global-mode t)
   (sp-with-modes '(html-mode html-ts-mode mhtml-mode web-mode tsx-ts-mode)
     (sp-local-pair "<" ">" :actions '(insert wrap))

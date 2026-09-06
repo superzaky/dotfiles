@@ -23,3 +23,6 @@ export PATH="$HOME/.local/state/cabal/bin:$PATH"
 [ -f "/home/zaky/.ghcup/env" ] && . "/home/zaky/.ghcup/env" # ghcup-envexport DOTNET_ROOT=$HOME/.dotnet
 export DOTNET_ROOT=$HOME/.dotnet
 export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools
+
+# Cargo binaries which is required for LSP Latex
+export PATH="$HOME/.cargo/bin:$PATH"
