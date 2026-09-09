@@ -10,3 +10,7 @@ set recolor-darkcolor "#ffffff"
 # Statusbalk aanpassingen
 set statusbar-bg "#2d2d2d"
 set statusbar-fg "#aaaaaa"
+
+# Clipboard & Sandbox Fixes
+set sandbox none
+set selection-clipboard clipboard
