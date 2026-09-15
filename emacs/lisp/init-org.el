@@ -22,6 +22,24 @@
 
 (use-package org-roam
   :ensure t
+  ;; Define custom functions and tell Emacs that org-roam-directory is a global dynamic variable
+  :preface
+  (defvar org-roam-directory) ; Fixes the lexical/dynamic variable conflict
+
+  (defun my/org-roam-node-find-in-current-dir ()
+    "Create or find an Org-roam node in the current buffer's directory."
+    (interactive)
+    (let ((org-roam-directory (file-name-directory (or (buffer-file-name) default-directory))))
+      (org-roam-db-sync) ; Scan the directory to catch new/untracked files
+      (org-roam-node-find)))
+
+  (defun my/org-roam-node-insert-in-current-dir ()
+    "Insert a link to an Org-roam node inside the current buffer's directory."
+    (interactive)
+    (let ((org-roam-directory (file-name-directory (or (buffer-file-name) default-directory))))
+      (org-roam-db-sync) ; Scan the directory to populate the link selection list
+      (org-roam-node-insert)))
+
   :custom
   (org-roam-directory (file-truename "~/org-roam")) ; Default root path for notes
   ;; Remove the timestamp prefix from created filenames:
@@ -31,15 +49,10 @@
       :unnarrowed t)))
   :bind (("C-c n f" . org-roam-node-find)          ; Find or create a note in default dir
          ("C-c n c" . my/org-roam-node-find-in-current-dir) ; Find or create in CURRENT dir
-         ("C-c n i" . org-roam-node-insert)        ; Insert a link to another note at point
+         ("C-c n i" . my/org-roam-node-insert-in-current-dir) ; Insert a link to another note in CURRENT dir
          ("C-c n l" . org-roam-buffer-toggle))     ; Toggle sidebar showing backlinks
   :config
-  (defun my/org-roam-node-find-in-current-dir ()
-    "Create or find an Org-roam node in the current buffer's directory."
-    (interactive)
-    (let ((org-roam-directory (file-name-directory (or (buffer-file-name) default-directory))))
-      (org-roam-node-find)))
-
   (org-roam-db-autosync-mode))
 
 (provide 'init-org)
+
