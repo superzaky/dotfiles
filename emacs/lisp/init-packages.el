@@ -17,7 +17,7 @@
 (dolist (pkg '(vertico orderless corfu marginalia cape dape magit eldoc-box auctex
                        scss-mode haskell-mode consult wgrep lsp-mode lsp-ui lsp-haskell
                        smartparens emmet-mode dashboard diff-hl org-roam dap-mode
-                       ef-themes))
+                       ef-themes kusanagi-theme))
   (unless (package-installed-p pkg)
     (condition-case nil
         (package-install pkg)
