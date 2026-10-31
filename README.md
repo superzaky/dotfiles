@@ -60,6 +60,10 @@ For the IDE engine (eglot) to underline errors and know your method names, it re
 
 `pyright --version`
 
+#### SEARCH BY CONTENT
+When searching by content via the shortcut C-c f g it makes use of ripgrep. Therefore, you need to install the following dependency in Debian via:\
+`sudo apt install ripgrep`
+
 ## Latex
 To view the compiled latex file in pdf-tools, you need to install the following tools that pdf-tools require:
 `sudo apt install libpoppler-glib-dev libpoppler-private-dev libpng-dev pkg-config gcc make`

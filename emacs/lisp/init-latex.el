@@ -17,7 +17,9 @@
     :ensure t
     :config
     (pdf-tools-install)
-    (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer))
+    (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+    ;; Automatically disable line numbers in PDF view mode to prevent warnings
+    (add-hook 'pdf-view-mode-hook (lambda () (display-line-numbers-mode -1))))
 
   (use-package tex
     :ensure auctex
