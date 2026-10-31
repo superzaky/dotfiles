@@ -1,0 +1,10 @@
+[options]
+# Keep the overlay visible by default
+overlay = true
+
+# Display only the filename without index/count
+overlay_text = $(basename "$imv_current_file")
+title_text = $(basename "$imv_current_file") - imv
+
+[binds]
+d = overlay
