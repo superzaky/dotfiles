@@ -21,29 +21,30 @@
 
 (delete-selection-mode 1)
 
-;; ;; --- EF THEMES & MODUS INTEGRATION ---
-;; (require 'ef-themes)
+;; --- EF THEMES & MODUS INTEGRATION ---
+(require 'ef-themes)
 
-;; ;; Make Modus commands (rotate, select, random) control Ef themes
-;; (ef-themes-take-over-modus-themes-mode 1)
+;; Make Modus commands (rotate, select, random) control Ef themes
+(ef-themes-take-over-modus-themes-mode 1)
 
-;; ;; Theme customizations
-;; (setq modus-themes-mixed-fonts t)
-;; (setq modus-themes-italic-constructs t)
+;; Theme customizations
+(setq modus-themes-mixed-fonts t)
+(setq modus-themes-italic-constructs t)
 
-;; ;; Keybindings to quickly preview themes:
-;; ;; <f5>    -> Rotate/cycle to the next Ef theme
-;; ;; C-<f5>  -> Interactive selection list with completion
-;; ;; M-<f5>  -> Load a completely random Ef theme
-;; (global-set-key (kbd "<f6>") #'modus-themes-rotate)
-;; (global-set-key (kbd "C-<f6>") #'modus-themes-select)
-;; (global-set-key (kbd "M-<f6>") #'modus-themes-load-random)
+;; Keybindings to quickly preview themes:
+;; <f5>    -> Rotate/cycle to the next Ef theme
+;; C-<f5>  -> Interactive selection list with completion
+;; M-<f5>  -> Load a completely random Ef theme
+(global-set-key (kbd "<f6>") #'modus-themes-rotate)
+(global-set-key (kbd "C-<f6>") #'modus-themes-select)
+(global-set-key (kbd "M-<f6>") #'modus-themes-load-random)
 
-;; ;; Load starting theme
-;; (modus-themes-load-theme 'ef-trio-dark)
+;; Load starting theme
+;; my fav is ef-trio-dark and after that ef-autumn.
+(modus-themes-load-theme 'ef-trio-dark)
 
 ;; Load Kusanagi theme
-(load-theme 'kusanagi t)
+;; (load-theme 'kusanagi t)
 
 ;; Indentation: Spaces instead of Tabs
 (setq-default indent-tabs-mode nil)
