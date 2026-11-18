@@ -6,10 +6,11 @@
   :init
   (global-diff-hl-mode 1)
   :config
-  (diff-hl-flydiff-mode 1)
-  (with-eval-after-load 'magit
-    (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
-    (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)))
+  (diff-hl-flydiff-mode 1))
+  ;; Commented out to avoid extra git.exe calls during Magit refreshes:
+  ;; (with-eval-after-load 'magit
+  ;;   (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
+  ;;   (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)))
 
 ;; --- MAGIT ---
 (global-set-key (kbd "C-x g") 'magit-status)
@@ -27,10 +28,30 @@
 
 (with-eval-after-load 'magit
   (define-key magit-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)
-  (setq magit-diff-refine-hunk 'all)
+
+  ;; Keep diff rendering lightweight
+  (setq magit-diff-refine-hunk nil)
   (setq magit-diff-fontify-hunk t)
   (setq magit-diff-specify-hunk-foreground t)
-  (setq magit-diff-use-indicator-faces t))
+  (setq magit-diff-use-indicator-faces t)
+
+  ;; --- PERFORMANCE: MINIMIZE GIT.EXE CALLS ON LOCKED-DOWN WINDOWS ---
+  (remove-hook 'magit-status-headers-hook #'magit-insert-tags-header)
+  (remove-hook 'magit-status-headers-hook #'magit-insert-push-branch-header)
+  (remove-hook 'magit-status-headers-hook #'magit-insert-diff-filter-header)
+
+  (remove-hook 'magit-status-sections-hook #'magit-insert-unpushed-to-upstream-or-recent)
+  (remove-hook 'magit-status-sections-hook #'magit-insert-unpulled-from-upstream)
+  (remove-hook 'magit-status-sections-hook #'magit-insert-unpushed-to-pushremote)
+  (remove-hook 'magit-status-sections-hook #'magit-insert-unpulled-from-pushremote)
+  (remove-hook 'magit-status-sections-hook #'magit-insert-stashes)
+  (remove-hook 'magit-status-sections-hook #'magit-insert-merge-log)
+
+  ;; Only refresh magit-status when running Magit commands or pressing 'g'
+  (setq magit-refresh-status-buffer nil)
+
+  ;; Turn off verbose logging now that benchmarking is done
+  (setq magit-refresh-verbose nil))
 
 ;; --- EDIFF ---
 (setq ediff-split-window-function 'split-window-horizontally)
