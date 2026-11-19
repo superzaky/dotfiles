@@ -9,11 +9,13 @@
         (python-mode     . python-ts-mode)
         (csharp-mode     . csharp-ts-mode)
         (css-mode        . css-ts-mode)
-        (html-mode       . html-ts-mode)))
+        (html-mode       . html-ts-mode)
+        (lua-mode        . lua-ts-mode)))
 
 (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.html\\'" . html-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-ts-mode))
 
 (setq treesit-language-source-alist
       '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
@@ -22,7 +24,8 @@
         (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp" "master")
         (json "https://github.com/tree-sitter/tree-sitter-json" "master")
         (css "https://github.com/tree-sitter/tree-sitter-css" "master")
-        (html "https://github.com/tree-sitter/tree-sitter-html" "master")))
+        (html "https://github.com/tree-sitter/tree-sitter-html" "master")
+        (lua "https://github.com/tree-sitter-grammars/tree-sitter-lua" "main")))
 
 (dolist (grammar treesit-language-source-alist)
   (let ((lang (car grammar)))
@@ -41,12 +44,26 @@
           typescript-mode typescript-ts-mode tsx-mode tsx-ts-mode
           js-mode js-ts-mode js2-mode html-mode html-ts-mode
           mhtml-mode css-mode css-ts-mode scss-mode
-          LaTeX-mode latex-mode) . lsp-deferred)
+          LaTeX-mode latex-mode
+          lua-mode lua-ts-mode) . lsp-deferred)
   :commands (lsp lsp-deferred)
   :config
   (setq lsp-disabled-clients '(html-ls))
   (add-to-list 'lsp-language-id-configuration '(LaTeX-mode . "latex"))
   (add-to-list 'lsp-language-id-configuration '(latex-mode . "latex"))
+  (add-to-list 'lsp-language-id-configuration '(lua-mode . "lua"))
+  (add-to-list 'lsp-language-id-configuration '(lua-ts-mode . "lua"))
+
+  ;; Lua language server (LuaLS) must be installed and on PATH
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection
+                     (lambda () (list (or (executable-find "lua-language-server")
+                                          "lua-language-server"))))
+    :activation-fn (lsp-activate-on "lua")
+    :major-modes '(lua-mode lua-ts-mode)
+    :priority 1
+    :server-id 'my-lua-ls))
 
   (when (eq system-type 'windows-nt)
     (setq lsp-clients-typescript-server "typescript-language-server")
@@ -183,3 +200,4 @@ grammar — not just that the node type exists (upstream bug workaround)."
   (add-hook 'lsp-mode-hook #'my/setup-lsp-capf-super 90))
 
 (provide 'init-lsp)
+;;; init-lsp.el ends here
